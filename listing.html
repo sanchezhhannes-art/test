@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fingerling Listings - FishMarket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <header class="bg-blue-600 text-white shadow">
+  <div class="container mx-auto flex justify-between items-center py-4 px-6">
+    <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
+    <nav>
+      <ul class="flex space-x-6">
+        <li><a href="admin-panel.html" class="hover:text-yellow-300">Dashboard</a></li>
+        <li><a href="users.html" class="hover:text-yellow-300">Users</a></li>
+        <li><a href="listing.html" class="hover:text-yellow-300">Listings</a></li>
+        <li><a href="reports.html" class="hover:text-yellow-300">Reports</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+  <!-- Filter Section -->
+  <section class="container mx-auto py-8 px-6">
+    <h2 class="text-3xl font-bold mb-6 text-center">Available Fingerlings</h2>
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Bangus</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tilapia</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Grouper</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Catfish</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sea Bass</button>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Carp</button>
+    </div>
+  </section>
+
+  <!-- Listings Grid -->
+  <section class="container mx-auto px-6 pb-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Bangus Fingerlings</h4>
+        <p class="text-gray-600">₱3.50/pc | 5,000 pcs</p>
+        <p class="text-gray-500">📍 Mandaue</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Tilapia Fingerlings</h4>
+        <p class="text-gray-600">₱3.00/pc | 10,000 pcs</p>
+        <p class="text-gray-500">📍 Consolacion</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Grouper Fingerlings</h4>
+        <p class="text-gray-600">₱5.00/pc | 1,200 pcs</p>
+        <p class="text-gray-500">📍 Compostela</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Catfish Fingerlings</h4>
+        <p class="text-gray-600">₱3.80/pc | 3,000 pcs</p>
+        <p class="text-gray-500">📍 Liloan</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Sea Bass Fingerlings</h4>
+        <p class="text-gray-600">₱5.00/pc | 800 pcs</p>
+        <p class="text-gray-500">📍 Lapu-Lapu</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h4 class="text-xl font-semibold mb-2">Carp Fingerlings</h4>
+        <p class="text-gray-600">₱3.20/pc | 6,500 pcs</p>
+        <p class="text-gray-500">📍 Talisay</p>
+        <a href="product-detail.html" class="mt-4 inline-block bg-yellow-400 text-blue-700 px-4 py-2 rounded hover:bg-yellow-500">View Details</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white text-center py-4 mt-12">
+    <p>&copy; 2026 FishMarket | Team ABAI</p>
+  </footer>
+
+</body>
+</html>

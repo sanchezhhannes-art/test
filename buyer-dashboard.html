@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard - FishMarket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <header class="bg-blue-600 text-white shadow">
+  <div class="container mx-auto flex justify-between items-center py-4 px-6">
+    <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
+    <nav>
+      <ul class="flex space-x-6">
+        <li><a href="admin-panel.html" class="hover:text-yellow-300">Dashboard</a></li>
+        <li><a href="users.html" class="hover:text-yellow-300">Users</a></li>
+        <li><a href="listing.html" class="hover:text-yellow-300">Listings</a></li>
+        <li><a href="reports.html" class="hover:text-yellow-300">Reports</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+  <!-- Dashboard -->
+  <section class="container mx-auto py-12 px-6">
+    <h2 class="text-3xl font-bold mb-6">My Dashboard</h2>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">2</p>
+        <p class="text-gray-600">Active Orders</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">8</p>
+        <p class="text-gray-600">Completed</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">15</p>
+        <p class="text-gray-600">Saved Listings</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">3</p>
+        <p class="text-gray-600">New Comments</p>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+      <h3 class="text-xl font-semibold mb-4">My Recent Orders</h3>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-3">Order ID</th>
+            <th class="p-3">Species</th>
+            <th class="p-3">Qty</th>
+            <th class="p-3">Seller</th>
+            <th class="p-3">Status</th>
+            <th class="p-3">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t">
+            <td class="p-3">#FG-0041</td>
+            <td class="p-3">Bangus</td>
+            <td class="p-3">2,000 pcs</td>
+            <td class="p-3">Juan's Hatchery</td>
+            <td class="p-3 text-green-600">Confirmed</td>
+            <td class="p-3">Mar 8</td>
+          </tr>
+          <tr class="border-t">
+            <td class="p-3">#FG-0038</td>
+            <td class="p-3">Tilapia</td>
+            <td class="p-3">5,000 pcs</td>
+            <td class="p-3">Leyte Hatchery</td>
+            <td class="p-3 text-gray-600">Completed</td>
+            <td class="p-3">Feb 25</td>
+          </tr>
+          <tr class="border-t">
+            <td class="p-3">#FG-0035</td>
+            <td class="p-3">Grouper</td>
+            <td class="p-3">500 pcs</td>
+            <td class="p-3">CebuFish Farm</td>
+            <td class="p-3 text-gray-600">Completed</td>
+            <td class="p-3">Feb 10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- AI Tip -->
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+      <p class="font-semibold">🤖 AI Tip:</p>
+      <p class="text-gray-700">Based on your recent purchases, tilapia fingerlings grow best between March–May. Consider ordering now for the best harvest season!</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white text-center py-4 mt-12">
+    <p>&copy; 2026 FishMarket | Team ABAI</p>
+  </footer>
+
+</body>
+</html>

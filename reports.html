@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - FishMarket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Navbar -->
+  <header class="bg-blue-600 text-white shadow">
+    <div class="container mx-auto flex justify-between items-center py-4 px-6">
+      <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="admin-panel.html" class="hover:text-yellow-300">Dashboard</a></li>
+          <li><a href="users.html" class="hover:text-yellow-300">Users</a></li>
+          <li><a href="listing.html" class="hover:text-yellow-300">Listings</a></li>
+          <li><a href="reports.html" class="hover:text-yellow-300">Reports</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <section class="container mx-auto py-12 px-6">
+    <h2 class="text-3xl font-bold mb-6">Reports</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Supply vs Demand Chart -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-4">Supply vs Demand</h3>
+        <canvas id="supplyDemandChart" class="w-full h-64"></canvas>
+      </div>
+
+      <!-- Seller Performance Chart -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-4">Seller Performance</h3>
+        <canvas id="sellerPerformanceChart" class="w-full h-64"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chart.js Scripts -->
+  <script>
+    // Supply vs Demand Bar Chart
+    const ctx1 = document.getElementById('supplyDemandChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Bangus', 'Tilapia', 'Grouper', 'Catfish', 'Carp'],
+        datasets: [
+          {
+            label: 'Supply',
+            data: [5000, 10000, 1200, 3000, 6500],
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+          },
+          {
+            label: 'Demand',
+            data: [7000, 12000, 2000, 4000, 8000],
+            backgroundColor: 'rgba(255, 99, 132, 0.7)'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' }
+        }
+      }
+    });
+
+    // Seller Performance Pie Chart
+    const ctx2 = document.getElementById('sellerPerformanceChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'pie',
+      data: {
+        labels: ['Juan\'s Hatchery', 'Leyte Hatchery', 'CebuFish Farm', 'BlueLake Hatchery'],
+        datasets: [{
+          label: 'Sales',
+          data: [28500, 15000, 12000, 8000],
+          backgroundColor: [
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'right' }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

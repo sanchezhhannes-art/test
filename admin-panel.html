@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LGU Admin Panel - FishMarket</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+ <header class="bg-blue-600 text-white shadow">
+  <div class="container mx-auto flex justify-between items-center py-4 px-6">
+    <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
+    <nav>
+      <ul class="flex space-x-6">
+        <li><a href="admin-panel.html" class="hover:text-yellow-300">Dashboard</a></li>
+        <li><a href="users.html" class="hover:text-yellow-300">Users</a></li>
+        <li><a href="listing.html" class="hover:text-yellow-300">Listings</a></li>
+        <li><a href="reports.html" class="hover:text-yellow-300">Reports</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+  <!-- Admin Dashboard -->
+  <section class="container mx-auto py-12 px-6">
+    <h2 class="text-3xl font-bold mb-6">LGU Admin Panel</h2>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">24</p>
+        <p class="text-gray-600">Registered Sellers</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">87</p>
+        <p class="text-gray-600">Active Listings</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">156</p>
+        <p class="text-gray-600">Total Buyers</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-6 text-center">
+        <p class="text-2xl font-bold">5</p>
+        <p class="text-gray-600">Pending Approvals</p>
+      </div>
+    </div>
+
+    <!-- Pending Seller Verifications -->
+    <div class="bg-white shadow rounded-lg p-6">
+      <h3 class="text-xl font-semibold mb-4">Pending Seller Verifications</h3>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-3">Hatchery Name</th>
+            <th class="p-3">Location</th>
+            <th class="p-3">Species</th>
+            <th class="p-3">Submitted</th>
+            <th class="p-3">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t">
+            <td class="p-3">CebuFish Farm</td>
+            <td class="p-3">Talisay</td>
+            <td class="p-3">Tilapia, Bangus</td>
+            <td class="p-3">Mar 9</td>
+            <td class="p-3 space-x-2">
+              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+            </td>
+          </tr>
+          <tr class="border-t">
+            <td class="p-3">BlueLake Hatchery</td>
+            <td class="p-3">Carmen</td>
+            <td class="p-3">Carp, Catfish</td>
+            <td class="p-3">Mar 8</td>
+            <td class="p-3 space-x-2">
+              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+            </td>
+          </tr>
+          <tr class="border-t">
+            <td class="p-3">IslaFin Aqua</td>
+            <td class="p-3">Lapu-Lapu</td>
+            <td class="p-3">Grouper, Bass</td>
+            <td class="p-3">Mar 7</td>
+            <td class="p-3 space-x-2">
+              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
+              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white text-center py-4 mt-12">
+    <p>&copy; 2026 FishMarket | Team ABAI</p>
+  </footer>
+
+</body>
+</html>
