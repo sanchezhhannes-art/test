@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LGU Admin Panel - FishMarket</title>
+  <title>Product Detail - FishMarket</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
- <header class="bg-blue-600 text-white shadow">
+<header class="bg-blue-600 text-white shadow">
   <div class="container mx-auto flex justify-between items-center py-4 px-6">
     <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
     <nav>
@@ -23,76 +23,58 @@
 </header>
 
 
-  <!-- Admin Dashboard -->
+  <!-- Product Detail -->
   <section class="container mx-auto py-12 px-6">
-    <h2 class="text-3xl font-bold mb-6">LGU Admin Panel</h2>
+    <a href="listing.html" class="text-blue-600 hover:underline">&larr; Back to Listings</a>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="bg-white shadow rounded-lg p-6 text-center">
-        <p class="text-2xl font-bold">24</p>
-        <p class="text-gray-600">Registered Sellers</p>
-      </div>
-      <div class="bg-white shadow rounded-lg p-6 text-center">
-        <p class="text-2xl font-bold">87</p>
-        <p class="text-gray-600">Active Listings</p>
-      </div>
-      <div class="bg-white shadow rounded-lg p-6 text-center">
-        <p class="text-2xl font-bold">156</p>
-        <p class="text-gray-600">Total Buyers</p>
-      </div>
-      <div class="bg-white shadow rounded-lg p-6 text-center">
-        <p class="text-2xl font-bold">5</p>
-        <p class="text-gray-600">Pending Approvals</p>
-      </div>
-    </div>
+    <div class="bg-white shadow rounded-lg p-8 mt-4">
+      <h2 class="text-3xl font-bold mb-4">Bangus (Milkfish) Fingerlings</h2>
+      <p class="text-xl text-gray-700 mb-2">₱3.50 per piece</p>
+      <p class="text-gray-600 mb-2">Available Qty: 5,000 pieces</p>
+      <p class="text-gray-600 mb-2">Avg. Size: 4–5 inches</p>
+      <p class="text-gray-600 mb-2">Location: Mandaue, Cebu</p>
+      <p class="text-gray-600 mb-4">Species: <em>Chanos chanos</em></p>
 
-    <!-- Pending Seller Verifications -->
-    <div class="bg-white shadow rounded-lg p-6">
-      <h3 class="text-xl font-semibold mb-4">Pending Seller Verifications</h3>
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="p-3">Hatchery Name</th>
-            <th class="p-3">Location</th>
-            <th class="p-3">Species</th>
-            <th class="p-3">Submitted</th>
-            <th class="p-3">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-t">
-            <td class="p-3">CebuFish Farm</td>
-            <td class="p-3">Talisay</td>
-            <td class="p-3">Tilapia, Bangus</td>
-            <td class="p-3">Mar 9</td>
-            <td class="p-3 space-x-2">
-              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
-              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
-            </td>
-          </tr>
-          <tr class="border-t">
-            <td class="p-3">BlueLake Hatchery</td>
-            <td class="p-3">Carmen</td>
-            <td class="p-3">Carp, Catfish</td>
-            <td class="p-3">Mar 8</td>
-            <td class="p-3 space-x-2">
-              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
-              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
-            </td>
-          </tr>
-          <tr class="border-t">
-            <td class="p-3">IslaFin Aqua</td>
-            <td class="p-3">Lapu-Lapu</td>
-            <td class="p-3">Grouper, Bass</td>
-            <td class="p-3">Mar 7</td>
-            <td class="p-3 space-x-2">
-              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>
-              <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Seller Info -->
+      <div class="bg-gray-100 p-4 rounded mb-6">
+        <p><strong>Seller:</strong> Juan's Hatchery</p>
+        <p>⭐⭐⭐⭐⭐ 4.8/5 (42 reviews)</p>
+        <p>📍 Mandaue City, Cebu | 📞 09XX-XXX-XXXX</p>
+      </div>
+
+      <!-- Media Section -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gray-200 h-32 flex items-center justify-center">🎬 Feeding Routine</div>
+        <div class="bg-gray-200 h-32 flex items-center justify-center">📷 Hatchery Tank</div>
+        <div class="bg-gray-200 h-32 flex items-center justify-center">🎬 Water Quality</div>
+      </div>
+
+      <!-- Order Form -->
+      <form class="flex items-center space-x-4 mb-6">
+        <label for="quantity" class="font-semibold">Quantity:</label>
+        <input id="quantity" type="number" value="1000" min="100" step="100"
+               class="border rounded px-3 py-2 w-32">
+        <p class="font-semibold">Total: ₱3,500.00</p>
+        <button type="submit" class="bg-yellow-400 text-blue-700 px-6 py-2 rounded hover:bg-yellow-500">Add to Cart & Order</button>
+      </form>
+
+      <!-- Comments Section -->
+      <h3 class="text-xl font-bold mb-4">Comments on this Listing</h3>
+      <div class="space-y-4 mb-6">
+        <div class="border-b pb-2">
+          <p class="font-semibold">Maria F. <span class="text-sm text-gray-500">2h ago</span></p>
+          <p class="text-gray-700">Kamusta ang kalidad? Bag-o ba ni sila?</p>
+        </div>
+        <div class="border-b pb-2">
+          <p class="font-semibold">Jun D. <span class="text-sm text-gray-500">5h ago</span></p>
+          <p class="text-gray-700">Magkano ang minimum order?</p>
+        </div>
+      </div>
+      <form class="flex space-x-2">
+        <input type="text" placeholder="Write a comment..."
+               class="flex-grow border rounded px-3 py-2">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Post</button>
+      </form>
     </div>
   </section>
 
