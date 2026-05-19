@@ -1,87 +1,1109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Detail - FishMarket</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Food Delivery System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0e0c;--surface:#181714;--card:#1f1d19;--border:#2e2b24;
+  --orange:#f97316;--amber:#fbbf24;--green:#22c55e;--red:#ef4444;
+  --text:#f5f0e8;--muted:#8a8070;
+  --cl-bg:#faf8f4;--cl-card:#ffffff;--cl-border:#e8e2d8;
+  --cl-text:#1a1714;--cl-muted:#8a8070;--cl-surface:#f3ede4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ROLE SCREEN */
+#role-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;}
+.role-wrap{text-align:center;max-width:520px;width:90%;}
+.role-logo{font-size:52px;margin-bottom:16px;}
+.role-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1.15;margin-bottom:10px;}
+.role-sub{color:var(--muted);font-size:15px;margin-bottom:44px;line-height:1.6;}
+.role-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.role-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 20px;cursor:pointer;transition:all .22s;text-align:center;}
+.role-card:hover{border-color:var(--orange);transform:translateY(-5px);box-shadow:0 16px 48px rgba(249,115,22,.18);}
+.role-card .rc-icon{font-size:38px;margin-bottom:12px;}
+.role-card h3{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:5px;}
+.role-card p{font-size:13px;color:var(--muted);line-height:1.5;}
+.role-note{font-size:12px;color:var(--muted);}
+
+/* ADMIN SHELL */
+#admin-app{display:none;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;padding:0 0 24px;}
+.logo{padding:28px 24px 24px;border-bottom:1px solid var(--border);}
+.logo-icon{width:40px;height:40px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:12px;}
+.logo h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;line-height:1.3;}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+.nav-group{padding:20px 16px 8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 16px;margin:1px 8px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);transition:all .18s;}
+.nav-item:hover{background:var(--card);color:var(--text);}
+.nav-item.active{background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(249,115,22,.05));color:var(--orange);font-weight:500;}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--orange);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;}
+.status-bar{margin-top:auto;padding:16px;border-top:1px solid var(--border);}
+.status-pill{display:flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);padding:8px 12px;border-radius:8px;font-size:12px;color:var(--green);}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.switch-btn-admin{margin:8px 12px 0;padding:9px 14px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.2);border-radius:10px;color:var(--orange);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;transition:all .18s;text-align:left;}
+.switch-btn-admin:hover{background:rgba(249,115,22,.2);}
+.admin-main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{padding:20px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:50;}
+.topbar-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.btn{padding:9px 18px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .18s;}
+.btn-primary{background:var(--orange);color:#000;}
+.btn-primary:hover{background:#ea6c0e;transform:translateY(-1px);}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--border);}
+.content{padding:28px 32px;flex:1;}
+.page{display:none;animation:fadeUp .3s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.orange::before{background:var(--orange);}
+.stat-card.amber::before{background:var(--amber);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;font-weight:500;}
+.stat-value{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:6px;}
+.stat-sub{font-size:12px;color:var(--muted);}
+.stat-sub .up{color:var(--green);}.stat-sub .down{color:var(--red);}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:20px;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-head h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.panel-body{padding:20px;}
+.order-table{width:100%;border-collapse:collapse;}
+.order-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 0 12px;font-weight:500;border-bottom:1px solid var(--border);}
+.order-table td{padding:13px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+.order-table tr:last-child td{border-bottom:none;}
+.order-table tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-delivered{background:rgba(34,197,94,.12);color:var(--green);}
+.badge-preparing{background:rgba(251,191,36,.12);color:var(--amber);}
+.badge-transit{background:rgba(249,115,22,.12);color:var(--orange);}
+.badge-cancelled{background:rgba(239,68,68,.12);color:var(--red);}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;}
+.bar{flex:1;background:rgba(249,115,22,.15);border-radius:5px 5px 0 0;transition:background .2s;cursor:pointer;}
+.bar:hover{background:rgba(249,115,22,.4);}.bar.highlight{background:var(--orange);}
+.bar-labels{display:flex;gap:6px;margin-top:6px;}
+.bar-label{flex:1;text-align:center;font-size:10px;color:var(--muted);}
+.map-area{height:220px;background:linear-gradient(135deg,#151310,#1a1710);border-radius:10px;position:relative;overflow:hidden;}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(249,115,22,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(249,115,22,.05) 1px,transparent 1px);background-size:30px 30px;}
+.map-dot{position:absolute;width:10px;height:10px;border-radius:50%;border:2px solid;}
+.map-dot.rider{background:var(--orange);border-color:var(--orange);box-shadow:0 0 10px var(--orange);}
+.map-dot.store{background:var(--amber);border-color:var(--amber);box-shadow:0 0 10px var(--amber);}
+.map-dot.user{background:var(--green);border-color:var(--green);box-shadow:0 0 10px var(--green);}
+.map-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted);}
+.map-legend span{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+.activity-list{display:flex;flex-direction:column;}
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;}
+.activity-item:last-child{border-bottom:none;}
+.act-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px;}
+.act-time{font-size:11px;color:var(--muted);margin-top:2px;}
+.search-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;}
+.search-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.search-input:focus{border-color:var(--orange);}
+.search-input::placeholder{color:var(--muted);}
+.filter-btn{padding:10px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--muted);cursor:pointer;font-size:13px;transition:all .18s;}
+.filter-btn.active,.filter-btn:hover{background:rgba(249,115,22,.12);border-color:var(--orange);color:var(--orange);}
+.resto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.resto-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;}
+.resto-card:hover{transform:translateY(-3px);border-color:var(--orange);}
+.resto-thumb{height:110px;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.resto-info{padding:14px;}
+.resto-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.resto-meta{font-size:12px;color:var(--muted);display:flex;gap:10px;}
+.resto-rating{color:var(--amber);}
+.rider-list{display:flex;flex-direction:column;gap:10px;}
+.rider-row{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;gap:16px;}
+.rider-avatar{width:40px;height:40px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.rider-name{font-weight:500;font-size:14px;}.rider-zone{font-size:12px;color:var(--muted);}
+.rider-stats{margin-left:auto;display:flex;gap:24px;text-align:center;}
+.rider-stat-val{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;}
+.rider-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;}
+.settings-section{margin-bottom:28px;}
+.settings-section h3{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+.setting-row label{font-size:14px;}.setting-row .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.toggle{width:42px;height:24px;background:var(--border);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
+.toggle.on{background:var(--orange);}
+.toggle::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle.on::after{transform:translateX(18px);}
+
+/* CUSTOMER APP */
+#customer-app{display:none;background:var(--cl-bg);min-height:100vh;color:var(--cl-text);}
+.cust-nav{background:#fff;border-bottom:1px solid var(--cl-border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.cn-logo{display:flex;align-items:center;gap:10px;}
+.cn-icon{width:36px;height:36px;background:var(--orange);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.cn-logo span{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--cl-text);}
+.cn-links{display:flex;gap:4px;}
+.cn-link{padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--cl-muted);border:none;background:none;font-family:'DM Sans',sans-serif;transition:all .18s;}
+.cn-link:hover{background:var(--cl-surface);color:var(--cl-text);}
+.cn-link.active{background:rgba(249,115,22,.1);color:var(--orange);font-weight:500;}
+.cn-right{display:flex;align-items:center;gap:8px;}
+.cart-btn{display:flex;align-items:center;gap:8px;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:8px 16px;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .18s;}
+.cart-btn:hover{background:#ea6c0e;}
+.cart-count{background:#fff;color:var(--orange);width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.user-pill{display:flex;align-items:center;gap:8px;padding:7px 13px;background:var(--cl-surface);border-radius:10px;font-size:13px;cursor:pointer;}
+.u-avatar{width:26px;height:26px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:600;}
+.switch-to-admin{background:none;border:1px solid var(--cl-border);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--cl-muted);font-family:'DM Sans',sans-serif;transition:all .18s;}
+.switch-to-admin:hover{border-color:var(--orange);color:var(--orange);}
+
+.cust-page{display:none;animation:fadeUp .3s ease;}
+.cust-page.active{display:block;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1c1208 0%,#2e1e08 50%,#1c1208 100%);padding:64px 40px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 25% 50%,rgba(249,115,22,.18) 0%,transparent 55%),radial-gradient(circle at 75% 50%,rgba(251,191,36,.12) 0%,transparent 55%);}
+.hero-inner{position:relative;z-index:1;max-width:600px;margin:0 auto;}
+.hero h2{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;line-height:1.1;color:#fff;margin-bottom:12px;}
+.hero h2 span{color:var(--orange);}
+.hero p{color:rgba(255,255,255,.6);font-size:16px;margin-bottom:28px;}
+.hero-search{display:flex;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3);max-width:480px;margin:0 auto 20px;}
+.hero-search input{flex:1;border:none;outline:none;padding:14px 18px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--cl-text);}
+.hero-search button{background:var(--orange);border:none;padding:14px 22px;cursor:pointer;font-size:17px;transition:background .18s;}
+.hero-search button:hover{background:#ea6c0e;}
+.hero-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.hero-tag{padding:6px 14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:20px;font-size:12px;color:rgba(255,255,255,.75);cursor:pointer;transition:all .18s;}
+.hero-tag:hover{background:rgba(249,115,22,.25);border-color:var(--orange);color:var(--orange);}
+
+.home-content{max-width:1040px;margin:0 auto;padding:32px 24px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.section-head h3{font-family:'Syne',sans-serif;font-size:19px;font-weight:700;color:var(--cl-text);}
+.see-all{font-size:13px;color:var(--orange);cursor:pointer;font-weight:500;}
+.cat-row{display:flex;gap:10px;margin-bottom:28px;overflow-x:auto;padding-bottom:4px;}
+.cat-pill{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 18px;background:#fff;border:1px solid var(--cl-border);border-radius:14px;cursor:pointer;transition:all .2s;white-space:nowrap;min-width:74px;}
+.cat-pill:hover,.cat-pill.active{background:rgba(249,115,22,.08);border-color:var(--orange);}
+.cat-pill .cp-icon{font-size:22px;}
+.cat-pill span{font-size:11px;font-weight:500;color:var(--cl-muted);}
+.cat-pill.active span{color:var(--orange);}
+.cust-resto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+.cust-resto-card{background:#fff;border:1px solid var(--cl-border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .22s;}
+.cust-resto-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1);border-color:var(--orange);}
+.crc-thumb{height:130px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;}
+.crc-badge{position:absolute;top:10px;right:10px;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.crc-body{padding:14px;}
+.crc-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:5px;color:var(--cl-text);}
+.crc-meta{display:flex;gap:10px;font-size:12px;color:var(--cl-muted);margin-bottom:7px;}
+.crc-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.crc-tag{background:var(--cl-surface);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--cl-muted);}
+
+/* MENU */
+.menu-header{background:linear-gradient(135deg,#1c1208,#2e1e08);padding:28px 36px;display:flex;align-items:center;gap:20px;}
+.menu-back{background:rgba(255,255,255,.12);border:none;border-radius:10px;padding:9px 16px;color:#fff;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .18s;}
+.menu-back:hover{background:rgba(255,255,255,.22);}
+.menu-resto-info h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:5px;}
+.menu-resto-info p{color:rgba(255,255,255,.6);font-size:13px;}
+.menu-body{max-width:940px;margin:0 auto;padding:28px 24px;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+.menu-cat-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--cl-muted);margin:0 0 12px;padding-top:6px;}
+.menu-item{background:#fff;border:1px solid var(--cl-border);border-radius:14px;padding:15px;display:flex;gap:14px;align-items:center;margin-bottom:10px;transition:all .18s;}
+.menu-item:hover{border-color:var(--orange);box-shadow:0 4px 20px rgba(249,115,22,.08);}
+.mi-emoji{font-size:34px;flex-shrink:0;}
+.mi-info{flex:1;}
+.mi-name{font-weight:600;font-size:14px;margin-bottom:3px;color:var(--cl-text);}
+.mi-desc{font-size:12px;color:var(--cl-muted);margin-bottom:6px;}
+.mi-price{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--orange);}
+.mi-add{background:var(--orange);border:none;border-radius:9px;width:34px;height:34px;cursor:pointer;color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0;}
+.mi-add:hover{background:#ea6c0e;transform:scale(1.1);}
+
+/* CART PANEL */
+.cart-panel{background:#fff;border:1px solid var(--cl-border);border-radius:16px;padding:20px;position:sticky;top:80px;}
+.cart-panel h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;color:var(--cl-text);}
+.cart-empty{text-align:center;padding:28px 0;color:var(--cl-muted);font-size:13px;line-height:1.7;}
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--cl-border);}
+.cart-item:last-of-type{border-bottom:none;}
+.ci-emoji{font-size:20px;}
+.ci-info{flex:1;}
+.ci-name{font-size:13px;font-weight:500;color:var(--cl-text);}
+.ci-price{font-size:12px;color:var(--cl-muted);}
+.ci-qty{display:flex;align-items:center;gap:6px;}
+.qty-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--cl-border);background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--cl-text);transition:all .15s;}
+.qty-btn:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.qty-num{font-size:13px;font-weight:600;min-width:16px;text-align:center;color:var(--cl-text);}
+.cart-summary{margin-top:14px;padding-top:14px;border-top:1px solid var(--cl-border);}
+.cart-row{display:flex;justify-content:space-between;font-size:13px;color:var(--cl-muted);margin-bottom:6px;}
+.cart-row.total{font-weight:700;font-size:15px;color:var(--cl-text);margin-top:8px;padding-top:8px;border-top:1px solid var(--cl-border);}
+.checkout-btn{width:100%;margin-top:14px;padding:13px;background:var(--orange);border:none;border-radius:11px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .18s;}
+.checkout-btn:hover{background:#ea6c0e;}
+.checkout-btn:disabled{background:var(--cl-border);color:var(--cl-muted);cursor:not-allowed;}
+
+/* ORDER TRACKING */
+.tracking-wrap{max-width:580px;margin:0 auto;padding:36px 24px;}
+.track-header{text-align:center;margin-bottom:36px;}
+.track-id-pill{display:inline-block;background:rgba(249,115,22,.1);color:var(--orange);font-weight:700;padding:5px 16px;border-radius:20px;font-size:14px;margin-bottom:10px;}
+.track-header h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--cl-text);margin-bottom:6px;}
+.track-header p{color:var(--cl-muted);font-size:14px;}
+.track-steps{position:relative;margin-bottom:28px;padding-left:0;}
+.track-line-bg{position:absolute;left:19px;top:20px;bottom:20px;width:2px;background:var(--cl-border);}
+.track-line-fill{position:absolute;left:19px;top:20px;width:2px;background:var(--orange);transition:height 1s ease;height:0%;}
+.track-step{display:flex;gap:18px;align-items:flex-start;margin-bottom:28px;position:relative;z-index:1;}
+.ts-dot{width:40px;height:40px;border-radius:50%;border:2px solid var(--cl-border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .3s;}
+.ts-dot.done{background:var(--orange);border-color:var(--orange);}
+.ts-dot.active{background:#fff;border-color:var(--orange);box-shadow:0 0 0 5px rgba(249,115,22,.15);}
+.ts-info h4{font-weight:600;font-size:14px;color:var(--cl-text);margin-bottom:3px;}
+.ts-info p{font-size:12px;color:var(--cl-muted);}
+.track-rider-card{background:#fff;border:1px solid var(--cl-border);border-radius:16px;padding:20px;}
+.track-rider-card h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;color:var(--cl-text);}
+.track-rider-row{display:flex;align-items:center;gap:14px;}
+.tr-avatar{width:48px;height:48px;background:var(--cl-surface);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.tr-name{font-weight:600;font-size:15px;color:var(--cl-text);}
+.tr-meta{font-size:12px;color:var(--cl-muted);margin-top:2px;}
+.call-btn{margin-left:auto;background:rgba(34,197,94,.1);border:none;border-radius:10px;padding:9px 16px;color:var(--green);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .18s;}
+.call-btn:hover{background:rgba(34,197,94,.2);}
+
+/* MY ORDERS */
+.my-orders-wrap{max-width:680px;margin:0 auto;padding:36px 24px;}
+.my-orders-wrap h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:24px;color:var(--cl-text);}
+.moc{background:#fff;border:1px solid var(--cl-border);border-radius:16px;padding:18px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .18s;}
+.moc:hover{border-color:var(--orange);transform:translateX(4px);box-shadow:0 4px 20px rgba(249,115,22,.08);}
+.moc-icon{font-size:28px;}
+.moc-info{flex:1;}
+.moc-id{font-size:11px;color:var(--cl-muted);margin-bottom:3px;}
+.moc-resto{font-weight:600;font-size:14px;color:var(--cl-text);margin-bottom:3px;}
+.moc-items{font-size:12px;color:var(--cl-muted);}
+.moc-right{text-align:right;}
+.moc-price{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--cl-text);margin-bottom:5px;}
+.cbadge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.cbadge-d{background:rgba(34,197,94,.12);color:var(--green);}
+.cbadge-p{background:rgba(251,191,36,.12);color:#b45309;}
+.cbadge-t{background:rgba(249,115,22,.12);color:var(--orange);}
+.cbadge-c{background:rgba(239,68,68,.12);color:var(--red);}
+
+/* PROFILE */
+.profile-wrap{max-width:540px;margin:0 auto;padding:36px 24px;}
+.profile-hero{background:linear-gradient(135deg,#fff8f0,#fef2e0);border:1px solid #fde8cc;border-radius:20px;padding:30px;text-align:center;margin-bottom:24px;}
+.prof-avatar{width:74px;height:74px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;margin:0 auto 14px;}
+.prof-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--cl-text);}
+.prof-since{font-size:13px;color:var(--cl-muted);margin-top:4px;}
+.prof-stats{display:flex;margin-top:20px;border-top:1px solid #fde8cc;padding-top:20px;}
+.prof-stat{flex:1;text-align:center;}
+.prof-stat+.prof-stat{border-left:1px solid #fde8cc;}
+.ps-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--orange);}
+.ps-lbl{font-size:11px;color:var(--cl-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+.profile-section{margin-bottom:20px;}
+.profile-section h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--cl-muted);margin-bottom:10px;}
+.profile-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--cl-border);border-radius:10px;padding:13px 16px;margin-bottom:6px;}
+.profile-row span{font-size:14px;color:var(--cl-text);}
+.profile-row .pr-val{font-size:13px;color:var(--cl-muted);}
+.sign-out{width:100%;padding:12px;background:#fff;border:1px solid var(--cl-border);border-radius:10px;cursor:pointer;font-size:13px;color:var(--cl-muted);font-family:'DM Sans',sans-serif;margin-top:4px;transition:all .18s;}
+.sign-out:hover{border-color:var(--red);color:var(--red);}
+
+/* CHECKOUT MODAL */
+.checkout-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;}
+.checkout-overlay.open{display:flex;}
+.checkout-modal{background:#fff;border-radius:20px;padding:28px;width:460px;max-width:92vw;animation:modalIn .25s ease;color:var(--cl-text);}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.checkout-modal h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:20px;}
+.co-sec{margin-bottom:18px;}
+.co-sec h4{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--cl-muted);margin-bottom:8px;font-weight:600;}
+.co-input{width:100%;border:1px solid var(--cl-border);border-radius:9px;padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--cl-text);outline:none;}
+.co-input:focus{border-color:var(--orange);}
+.pay-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pay-opt{border:1px solid var(--cl-border);border-radius:10px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cl-text);transition:all .18s;}
+.pay-opt.selected,.pay-opt:hover{border-color:var(--orange);background:rgba(249,115,22,.06);}
+.co-actions{display:flex;gap:10px;margin-top:20px;}
+.co-actions .btn{flex:1;padding:12px;}
+.btn-light{background:var(--cl-surface);color:var(--cl-text);border:1px solid var(--cl-border);}
+.btn-light:hover{background:var(--cl-border);}
+
+/* ADMIN MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:440px;max-width:90vw;animation:modalIn .25s ease;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-head h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+.close-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;}
+.close-btn:hover{color:var(--text);}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;}
+.form-input:focus{border-color:var(--orange);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn{flex:1;padding:11px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#1f1d19;border:1px solid #2e2b24;border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:12px;font-size:13px;color:#f5f0e8;transform:translateY(100px);opacity:0;transition:all .3s;z-index:1000;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-icon{font-size:18px;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body>
 
-<header class="bg-blue-600 text-white shadow">
-  <div class="container mx-auto flex justify-between items-center py-4 px-6">
-    <h1 class="text-2xl font-bold">🐟 FishMarket</h1>
-    <nav>
-      <ul class="flex space-x-6">
-        <li><a href="admin-panel.html" class="hover:text-yellow-300">Dashboard</a></li>
-        <li><a href="users.html" class="hover:text-yellow-300">Users</a></li>
-        <li><a href="listing.html" class="hover:text-yellow-300">Listings</a></li>
-        <li><a href="reports.html" class="hover:text-yellow-300">Reports</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
-
-
-  <!-- Product Detail -->
-  <section class="container mx-auto py-12 px-6">
-    <a href="listing.html" class="text-blue-600 hover:underline">&larr; Back to Listings</a>
-
-    <div class="bg-white shadow rounded-lg p-8 mt-4">
-      <h2 class="text-3xl font-bold mb-4">Bangus (Milkfish) Fingerlings</h2>
-      <p class="text-xl text-gray-700 mb-2">₱3.50 per piece</p>
-      <p class="text-gray-600 mb-2">Available Qty: 5,000 pieces</p>
-      <p class="text-gray-600 mb-2">Avg. Size: 4–5 inches</p>
-      <p class="text-gray-600 mb-2">Location: Mandaue, Cebu</p>
-      <p class="text-gray-600 mb-4">Species: <em>Chanos chanos</em></p>
-
-      <!-- Seller Info -->
-      <div class="bg-gray-100 p-4 rounded mb-6">
-        <p><strong>Seller:</strong> Juan's Hatchery</p>
-        <p>⭐⭐⭐⭐⭐ 4.8/5 (42 reviews)</p>
-        <p>📍 Mandaue City, Cebu | 📞 09XX-XXX-XXXX</p>
+<!-- ══ ROLE SCREEN ════════════════════════════════════════════ -->
+<div id="role-screen">
+  <div class="role-wrap">
+    <div class="role-logo">🍱</div>
+    <h1 class="role-title">Cordova Food<br>Delivery System</h1>
+    <p class="role-sub">A community-driven platform supporting local businesses<br>& faster delivery in Cordova, Cebu 🇵🇭</p>
+    <div class="role-cards">
+      <div class="role-card" onclick="launchAdmin()">
+        <div class="rc-icon">📊</div>
+        <h3>Admin Panel</h3>
+        <p>Manage orders, riders, restaurants & analytics</p>
       </div>
-
-      <!-- Media Section -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-gray-200 h-32 flex items-center justify-center">🎬 Feeding Routine</div>
-        <div class="bg-gray-200 h-32 flex items-center justify-center">📷 Hatchery Tank</div>
-        <div class="bg-gray-200 h-32 flex items-center justify-center">🎬 Water Quality</div>
+      <div class="role-card" onclick="launchCustomer()">
+        <div class="rc-icon">🛒</div>
+        <h3>Customer App</h3>
+        <p>Browse local restaurants, order food & track delivery</p>
       </div>
-
-      <!-- Order Form -->
-      <form class="flex items-center space-x-4 mb-6">
-        <label for="quantity" class="font-semibold">Quantity:</label>
-        <input id="quantity" type="number" value="1000" min="100" step="100"
-               class="border rounded px-3 py-2 w-32">
-        <p class="font-semibold">Total: ₱3,500.00</p>
-        <button type="submit" class="bg-yellow-400 text-blue-700 px-6 py-2 rounded hover:bg-yellow-500">Add to Cart & Order</button>
-      </form>
-
-      <!-- Comments Section -->
-      <h3 class="text-xl font-bold mb-4">Comments on this Listing</h3>
-      <div class="space-y-4 mb-6">
-        <div class="border-b pb-2">
-          <p class="font-semibold">Maria F. <span class="text-sm text-gray-500">2h ago</span></p>
-          <p class="text-gray-700">Kamusta ang kalidad? Bag-o ba ni sila?</p>
-        </div>
-        <div class="border-b pb-2">
-          <p class="font-semibold">Jun D. <span class="text-sm text-gray-500">5h ago</span></p>
-          <p class="text-gray-700">Magkano ang minimum order?</p>
-        </div>
-      </div>
-      <form class="flex space-x-2">
-        <input type="text" placeholder="Write a comment..."
-               class="flex-grow border rounded px-3 py-2">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Post</button>
-      </form>
     </div>
-  </section>
+    <p class="role-note">Choose your role to continue</p>
+  </div>
+</div>
 
-  <!-- Footer -->
-  <footer class="bg-blue-600 text-white text-center py-4 mt-12">
-    <p>&copy; 2026 FishMarket | Team ABAI</p>
-  </footer>
+<!-- ══ ADMIN APP ══════════════════════════════════════════════ -->
+<div id="admin-app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🍱</div>
+      <h1>Cordova Food<br>Delivery</h1>
+      <div class="logo-sub">Admin Dashboard</div>
+    </div>
+    <div class="nav-group">Overview</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)"><span class="icon">📊</span>Dashboard</div>
+    <div class="nav-item" onclick="nav('orders',this)"><span class="icon">📋</span>Orders<span class="nav-badge" id="pending-badge">3</span></div>
+    <div class="nav-group">Management</div>
+    <div class="nav-item" onclick="nav('restaurants',this)"><span class="icon">🏪</span>Restaurants</div>
+    <div class="nav-item" onclick="nav('riders',this)"><span class="icon">🛵</span>Riders</div>
+    <div class="nav-item" onclick="nav('customers',this)"><span class="icon">👤</span>Customers</div>
+    <div class="nav-group">System</div>
+    <div class="nav-item" onclick="nav('settings',this)"><span class="icon">⚙️</span>Settings</div>
+    <div style="padding:0 12px 0;margin-top:6px;">
+      <button class="switch-btn-admin" onclick="goHome()">⇄ Switch to Customer App</button>
+    </div>
+    <div class="status-bar">
+      <div class="status-pill"><div class="status-dot"></div>System Online</div>
+    </div>
+  </aside>
 
+  <main class="admin-main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="showToast('🔔','Notifications cleared')">🔔</button>
+        <button class="btn btn-primary" id="primary-action" onclick="openModal()">+ New Order</button>
+      </div>
+    </div>
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card orange"><div class="stat-label">Total Orders Today</div><div class="stat-value" id="s-orders">148</div><div class="stat-sub"><span class="up">↑ 12%</span> vs yesterday</div></div>
+          <div class="stat-card green"><div class="stat-label">Revenue Today</div><div class="stat-value">₱<span id="s-revenue">6,240</span></div><div class="stat-sub"><span class="up">↑ 8%</span> vs yesterday</div></div>
+          <div class="stat-card amber"><div class="stat-label">Active Riders</div><div class="stat-value">12</div><div class="stat-sub">of 15 available</div></div>
+          <div class="stat-card red"><div class="stat-label">Avg Delivery Time</div><div class="stat-value">18<span style="font-size:16px">min</span></div><div class="stat-sub"><span class="down">↓ 3min</span> improvement</div></div>
+        </div>
+        <div class="grid-3">
+          <div>
+            <div class="panel" style="margin-bottom:20px">
+              <div class="panel-head"><h3>Orders This Week</h3><span style="font-size:12px;color:var(--muted)">Mon–Sun</span></div>
+              <div class="panel-body"><div class="bar-chart" id="bar-chart"></div><div class="bar-labels" id="bar-labels"></div></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Recent Orders</h3><span style="font-size:12px;color:var(--orange);cursor:pointer" onclick="nav('orders',document.querySelectorAll('.nav-item')[1])">View all</span></div>
+              <div class="panel-body" style="padding:0 20px"><table class="order-table" id="recent-orders-table"></table></div>
+            </div>
+          </div>
+          <div>
+            <div class="panel" style="margin-bottom:20px">
+              <div class="panel-head"><h3>Live Rider Map</h3></div>
+              <div class="panel-body">
+                <div class="map-area"><div class="map-grid"></div>
+                  <div class="map-dot rider" style="top:40%;left:55%"></div><div class="map-dot rider" style="top:65%;left:30%"></div><div class="map-dot rider" style="top:25%;left:70%"></div>
+                  <div class="map-dot store" style="top:50%;left:45%"></div><div class="map-dot store" style="top:30%;left:25%"></div>
+                  <div class="map-dot user" style="top:70%;left:65%"></div><div class="map-dot user" style="top:20%;left:50%"></div>
+                </div>
+                <div class="map-legend">
+                  <span><div class="legend-dot" style="background:var(--orange)"></div>Rider</span>
+                  <span><div class="legend-dot" style="background:var(--amber)"></div>Restaurant</span>
+                  <span><div class="legend-dot" style="background:var(--green)"></div>Customer</span>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Live Activity</h3></div>
+              <div class="panel-body" style="padding:0 20px"><div class="activity-list" id="activity-feed"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ORDERS -->
+      <div class="page" id="page-orders">
+        <div class="search-bar">
+          <input class="search-input" placeholder="Search orders…" oninput="filterOrders(this.value)">
+          <button class="filter-btn active" onclick="filterStatus('all',this)">All</button>
+          <button class="filter-btn" onclick="filterStatus('Delivered',this)">Delivered</button>
+          <button class="filter-btn" onclick="filterStatus('Preparing',this)">Preparing</button>
+          <button class="filter-btn" onclick="filterStatus('In Transit',this)">In Transit</button>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>All Orders</h3><span style="font-size:12px;color:var(--muted)" id="order-count"></span></div>
+          <div class="panel-body" style="padding:0 20px"><table class="order-table" id="full-orders-table"></table></div>
+        </div>
+      </div>
+      <!-- RESTAURANTS -->
+      <div class="page" id="page-restaurants"><div class="resto-grid" id="resto-grid"></div></div>
+      <!-- RIDERS -->
+      <div class="page" id="page-riders"><div class="rider-list" id="rider-list"></div></div>
+      <!-- CUSTOMERS -->
+      <div class="page" id="page-customers">
+        <div class="panel">
+          <div class="panel-head"><h3>Registered Customers</h3></div>
+          <div class="panel-body" style="padding:0 20px"><table class="order-table" id="customer-table"></table></div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div style="max-width:600px">
+          <div class="settings-section">
+            <h3>Notifications</h3>
+            <div class="setting-row"><div><label>New Order Alerts</label><div class="sub">Sound & pop-up on every new order</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="setting-row"><div><label>Rider Late Warning</label><div class="sub">Alert when delivery exceeds 30 min</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+            <div class="setting-row"><div><label>Daily Summary Email</label><div class="sub">Receive end-of-day report</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+          </div>
+          <div class="settings-section">
+            <h3>Delivery Rules</h3>
+            <div class="setting-row"><div><label>Service Zone</label><div class="sub">Cordova town proper only</div></div><span style="color:var(--orange);font-size:13px;cursor:pointer">Edit</span></div>
+            <div class="setting-row"><div><label>Base Delivery Fee</label><div class="sub">₱25 flat rate within zone</div></div><span style="color:var(--orange);font-size:13px;cursor:pointer">Edit</span></div>
+            <div class="setting-row"><div><label>Max Orders Per Rider</label><div class="sub">Currently 3 simultaneous</div></div><span style="color:var(--orange);font-size:13px;cursor:pointer">Edit</span></div>
+          </div>
+          <div class="settings-section">
+            <h3>Platform</h3>
+            <div class="setting-row"><div><label>Maintenance Mode</label><div class="sub">Pause all new orders</div></div><button class="toggle" onclick="this.classList.toggle('on');showToast('⚙️','Maintenance mode toggled')"></button></div>
+            <div class="setting-row"><div><label>Auto-assign Riders</label><div class="sub">Automatically match orders to nearest rider</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Admin New Order Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-head"><h2>Place New Order</h2><button class="close-btn" onclick="closeModal()">✕</button></div>
+      <div class="form-group"><label>Customer Name</label><input class="form-input" id="f-customer" placeholder="e.g. Maria Santos"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Restaurant</label>
+          <select class="form-input" id="f-resto">
+            <option>Ate Nene's Carinderia</option><option>Kuya Ben's BBQ</option>
+            <option>Nanay Linda's Kitchen</option><option>Barangay Bites</option>
+            <option>Cordova Mami House</option><option>Fil-Chi Food Corner</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Amount (₱)</label><input class="form-input" id="f-amount" type="number" placeholder="0"></div>
+      </div>
+      <div class="form-group"><label>Delivery Address</label><input class="form-input" id="f-address" placeholder="Purok / Barangay"></div>
+      <div class="form-group"><label>Items</label><input class="form-input" id="f-items" placeholder="e.g. Adobo Plate x2, Buko Juice x1"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitOrder()">Confirm Order</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /admin-app -->
+
+<!-- ══ CUSTOMER APP ═══════════════════════════════════════════ -->
+<div id="customer-app">
+  <nav class="cust-nav">
+    <div class="cn-logo">
+      <div class="cn-icon">🍱</div>
+      <span>Cordova Eats</span>
+    </div>
+    <div class="cn-links">
+      <button class="cn-link active" onclick="custNav('home',this)">Home</button>
+      <button class="cn-link" onclick="custNav('my-orders',this)">My Orders</button>
+      <button class="cn-link" onclick="custNav('tracking',this)">Track Order</button>
+      <button class="cn-link" onclick="custNav('profile',this)">Profile</button>
+    </div>
+    <div class="cn-right">
+      <button class="cart-btn" onclick="showCartFromNav()">🛒 Cart <span class="cart-count" id="cart-count">0</span></button>
+      <div class="user-pill"><div class="u-avatar">M</div>Maria S.</div>
+      <button class="switch-to-admin" onclick="goHome()">⇄ Admin</button>
+    </div>
+  </nav>
+
+  <!-- HOME -->
+  <div class="cust-page active" id="cust-page-home">
+    <div class="hero">
+      <div class="hero-inner">
+        <h2>Hungry? <span>Order Local.</span><br>Delivered Fast. 🚀</h2>
+        <p>Support Cordova's best food businesses — straight to your door.</p>
+        <div class="hero-search">
+          <input placeholder="Search for food or restaurants…" id="hero-search-input" oninput="heroSearch(this.value)">
+          <button>🔍</button>
+        </div>
+        <div class="hero-tags">
+          <span class="hero-tag" onclick="filterCatByName('Rice Meals')">🍚 Rice Meals</span>
+          <span class="hero-tag" onclick="filterCatByName('BBQ')">🍖 BBQ</span>
+          <span class="hero-tag" onclick="filterCatByName('Noodles')">🍜 Noodles</span>
+          <span class="hero-tag" onclick="filterCatByName('Snacks')">🧃 Snacks</span>
+          <span class="hero-tag" onclick="filterCatByName('Desserts')">🍨 Desserts</span>
+        </div>
+      </div>
+    </div>
+    <div class="home-content">
+      <div class="cat-row" id="cat-row"></div>
+      <div class="section-head"><h3>🔥 Popular Near You</h3><span class="see-all">See all</span></div>
+      <div class="cust-resto-grid" id="cust-resto-grid"></div>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="cust-page" id="cust-page-menu">
+    <div class="menu-header">
+      <button class="menu-back" onclick="custNav('home',document.querySelectorAll('.cn-link')[0])">← Back</button>
+      <div style="font-size:42px" id="menu-emoji">🍚</div>
+      <div class="menu-resto-info">
+        <h2 id="menu-name">Restaurant</h2>
+        <p id="menu-meta">Filipino Comfort Food · ★ 4.8 · Open · 15–25 min</p>
+      </div>
+    </div>
+    <div class="menu-body">
+      <div id="menu-items-list"></div>
+      <div class="cart-panel">
+        <h3>🛒 Your Cart</h3>
+        <div id="cart-items-list"><div class="cart-empty">Your cart is empty.<br>Add items to get started!</div></div>
+        <div class="cart-summary" id="cart-summary" style="display:none">
+          <div class="cart-row"><span>Subtotal</span><span id="cart-subtotal">₱0</span></div>
+          <div class="cart-row"><span>Delivery Fee</span><span>₱25</span></div>
+          <div class="cart-row total"><span>Total</span><span id="cart-total">₱25</span></div>
+        </div>
+        <button class="checkout-btn" id="checkout-btn" onclick="openCheckout()" disabled>Place Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ORDERS -->
+  <div class="cust-page" id="cust-page-my-orders">
+    <div class="my-orders-wrap">
+      <h2>My Orders 📋</h2>
+      <div id="my-orders-list"></div>
+    </div>
+  </div>
+
+  <!-- TRACKING -->
+  <div class="cust-page" id="cust-page-tracking">
+    <div class="tracking-wrap">
+      <div class="track-header">
+        <div class="track-id-pill" id="track-order-id">#1049</div>
+        <h2>Your order is on the way! 🛵</h2>
+        <p>Estimated arrival: <strong style="color:var(--orange)">8–12 minutes</strong></p>
+      </div>
+      <div class="track-steps" id="track-steps">
+        <div class="track-line-bg"></div>
+        <div class="track-line-fill" id="track-fill"></div>
+      </div>
+      <div class="track-rider-card">
+        <h4>Your Rider</h4>
+        <div class="track-rider-row">
+          <div class="tr-avatar">🛵</div>
+          <div><div class="tr-name">Rodel Villanueva</div><div class="tr-meta">★ 4.9 · 18 deliveries today · Brgy. Day-as</div></div>
+          <button class="call-btn" onclick="showToast('📞','Calling Rodel…')">📞 Call</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="cust-page" id="cust-page-profile">
+    <div class="profile-wrap">
+      <div class="profile-hero">
+        <div class="prof-avatar">👤</div>
+        <div class="prof-name">Maria Santos</div>
+        <div class="prof-since">Member since January 2025 · Barangay Day-as</div>
+        <div class="prof-stats">
+          <div class="prof-stat"><div class="ps-val">12</div><div class="ps-lbl">Orders</div></div>
+          <div class="prof-stat"><div class="ps-val">₱2,180</div><div class="ps-lbl">Spent</div></div>
+          <div class="prof-stat"><div class="ps-val">4.9★</div><div class="ps-lbl">Rating</div></div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <h3>Account</h3>
+        <div class="profile-row"><span>Full Name</span><span class="pr-val">Maria Santos</span></div>
+        <div class="profile-row"><span>Phone</span><span class="pr-val">+63 917 123 4567</span></div>
+        <div class="profile-row"><span>Barangay</span><span class="pr-val">Day-as, Cordova</span></div>
+        <div class="profile-row"><span>Email</span><span class="pr-val">maria@email.com</span></div>
+      </div>
+      <div class="profile-section">
+        <h3>Saved Addresses</h3>
+        <div class="profile-row"><span>🏠 Home</span><span class="pr-val">Purok 3, Day-as</span></div>
+        <div class="profile-row"><span>🏢 Work</span><span class="pr-val">Brgy. Catarman</span></div>
+      </div>
+      <div class="profile-section">
+        <h3>Preferences</h3>
+        <div class="profile-row"><span>Order Notifications</span><button class="toggle on" style="transform:scale(.85)" onclick="this.classList.toggle('on')"></button></div>
+        <div class="profile-row"><span>Promo Emails</span><button class="toggle" style="transform:scale(.85)" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+      <button class="sign-out" onclick="goHome()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="checkout-overlay" id="checkout-overlay">
+    <div class="checkout-modal">
+      <h2>Confirm Your Order 🍱</h2>
+      <div class="co-sec">
+        <h4>Delivery Address</h4>
+        <input class="co-input" value="Purok 3, Barangay Day-as, Cordova" id="co-address">
+      </div>
+      <div class="co-sec">
+        <h4>Payment Method</h4>
+        <div class="pay-options">
+          <div class="pay-opt selected" onclick="selectPay(this)">💵 Cash on Delivery</div>
+          <div class="pay-opt" onclick="selectPay(this)">📱 GCash</div>
+          <div class="pay-opt" onclick="selectPay(this)">💳 Maya</div>
+          <div class="pay-opt" onclick="selectPay(this)">🏦 Bank Transfer</div>
+        </div>
+      </div>
+      <div class="co-sec">
+        <h4>Order Summary</h4>
+        <div id="co-summary-list"></div>
+      </div>
+      <div class="co-actions">
+        <button class="btn btn-light" onclick="closeCheckout()">Back</button>
+        <button class="btn btn-primary" onclick="placeOrder()">Confirm &amp; Order</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /customer-app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-icon" id="toast-icon">✅</span><span id="toast-msg">Done!</span></div>
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────── */
+const ORDERS = [
+  {id:'#1048',customer:'Maria Santos', resto:"Ate Nene's Carinderia",items:'Adobo Plate, Iced Tea',   amount:185,status:'Delivered', rider:'Rodel V.',time:'10:32 AM'},
+  {id:'#1049',customer:'Juan dela Cruz',resto:"Kuya Ben's BBQ",       items:'BBQ Platter x2',          amount:320,status:'In Transit',rider:'Chris M.',time:'10:45 AM'},
+  {id:'#1050',customer:'Ana Reyes',    resto:'Cordova Mami House',    items:'Mami x1, Siomai x6',     amount:145,status:'Preparing', rider:'—',       time:'11:00 AM'},
+  {id:'#1051',customer:'Ben Torres',   resto:"Nanay Linda's Kitchen", items:'Sinangag Combo x2',       amount:210,status:'Delivered', rider:'Paul B.', time:'9:55 AM'},
+  {id:'#1052',customer:'Cathy Go',     resto:'Barangay Bites',        items:'Halo-Halo x3',            amount:195,status:'Preparing', rider:'—',       time:'11:12 AM'},
+  {id:'#1053',customer:'Danny Lim',    resto:'Fil-Chi Food Corner',   items:'Pancit Canton, Tikoy',    amount:160,status:'In Transit',rider:'Rodel V.',time:'11:18 AM'},
+  {id:'#1054',customer:'Elena Cruz',   resto:"Ate Nene's Carinderia", items:'Sinigang sa Miso',        amount:130,status:'Cancelled', rider:'—',       time:'10:10 AM'},
+  {id:'#1055',customer:'Felix Ong',    resto:"Kuya Ben's BBQ",        items:'Liempo x3',               amount:450,status:'Delivered', rider:'Chris M.',time:'9:30 AM'},
+  {id:'#1056',customer:'Maria Santos', resto:'Cordova Mami House',    items:'Lomi x2, Egg Roll x4',   amount:220,status:'Delivered', rider:'Paul B.', time:'9:10 AM'},
+];
+const RESTAURANTS = [
+  {name:"Ate Nene's Carinderia",emoji:'🍚',cuisine:'Filipino Comfort Food',rating:4.8,orders:42,status:'Open',tag:'Rice Meals',bg:'#fef8f0'},
+  {name:"Kuya Ben's BBQ",        emoji:'🍖',cuisine:'BBQ & Grilled',        rating:4.7,orders:35,status:'Open',tag:'BBQ',        bg:'#fdf5ee'},
+  {name:"Nanay Linda's Kitchen", emoji:'🍲',cuisine:'Home Cooked Meals',    rating:4.9,orders:28,status:'Open',tag:'Rice Meals',bg:'#f0fdf4'},
+  {name:'Barangay Bites',        emoji:'🧃',cuisine:'Snacks & Drinks',      rating:4.5,orders:19,status:'Open',tag:'Snacks',     bg:'#f0f9ff'},
+  {name:'Cordova Mami House',    emoji:'🍜',cuisine:'Noodles & Soups',      rating:4.6,orders:31,status:'Open',tag:'Noodles',    bg:'#fff7ed'},
+  {name:'Fil-Chi Food Corner',   emoji:'🥟',cuisine:'Filipino-Chinese',     rating:4.4,orders:17,status:'Busy',tag:'Rice Meals', bg:'#fdf4ff'},
+];
+const RIDERS=[
+  {name:'Rodel Villanueva',zone:'Barangay Day-as',   deliveries:18,rating:4.9,status:'On Delivery'},
+  {name:'Chris Mendoza',   zone:'Barangay Gabi',     deliveries:15,rating:4.8,status:'On Delivery'},
+  {name:'Paul Bato',       zone:'Barangay Buagsong', deliveries:12,rating:4.7,status:'Available'},
+  {name:'Nico Espina',     zone:'Barangay Catarman', deliveries:10,rating:4.9,status:'Available'},
+  {name:'Arnel Yap',       zone:'Barangay Cogon',    deliveries:8, rating:4.6,status:'Offline'},
+  {name:'Dante Flores',    zone:'Barangay Ibabao',   deliveries:14,rating:4.8,status:'On Delivery'},
+];
+const CUSTOMERS_DATA=[
+  {name:'Maria Santos',  barangay:'Day-as',   orders:12,spent:'₱2,180',since:'Jan 2025'},
+  {name:'Juan dela Cruz',barangay:'Gabi',     orders:8, spent:'₱1,560',since:'Feb 2025'},
+  {name:'Ana Reyes',     barangay:'Catarman', orders:15,spent:'₱3,200',since:'Dec 2024'},
+  {name:'Ben Torres',    barangay:'Buagsong', orders:5, spent:'₱940',  since:'Mar 2025'},
+  {name:'Cathy Go',      barangay:'Cogon',    orders:20,spent:'₱4,100',since:'Nov 2024'},
+  {name:'Danny Lim',     barangay:'Ibabao',   orders:7, spent:'₱1,320',since:'Jan 2025'},
+];
+const WEEK_DATA=[58,72,65,90,110,148,82];
+const WEEK_DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const ACTIVITY=[
+  {icon:'🛵',bg:'rgba(249,115,22,0.12)',text:"Rodel picked up from Ate Nene's",time:'2 min ago'},
+  {icon:'✅',bg:'rgba(34,197,94,0.12)', text:'Order #1051 delivered to Ben Torres',time:'5 min ago'},
+  {icon:'🏪',bg:'rgba(251,191,36,0.12)',text:"Kuya Ben's BBQ updated menu",time:'9 min ago'},
+  {icon:'👤',bg:'rgba(99,102,241,0.12)',text:'New customer: Cathy Go signed up',time:'14 min ago'},
+  {icon:'⚠️',bg:'rgba(239,68,68,0.12)', text:'Order #1054 cancelled by Elena Cruz',time:'22 min ago'},
+];
+const MENU_DATA={
+  "Ate Nene's Carinderia":[
+    {cat:'Ulam',items:[
+      {emoji:'🍛',name:'Chicken Adobo Plate',desc:'Classic Filipino adobo with steamed rice',price:95},
+      {emoji:'🫕',name:'Sinigang sa Miso',desc:'Sour tamarind broth with bangus & veggies',price:115},
+      {emoji:'🍖',name:'Lechon Kawali Plate',desc:'Crispy fried pork belly with rice',price:130},
+      {emoji:'🍚',name:'Plain Rice',desc:'Steamed white rice',price:15},
+    ]},
+    {cat:'Drinks',items:[
+      {emoji:'🧃',name:'Buko Juice',desc:'Fresh young coconut juice',price:35},
+      {emoji:'🧋',name:'Iced Tea',desc:'Sweetened brewed iced tea',price:30},
+    ]},
+  ],
+  "Kuya Ben's BBQ":[
+    {cat:'Grilled',items:[
+      {emoji:'🍢',name:'Pork BBQ Stick',desc:'Marinated pork on bamboo skewer',price:25},
+      {emoji:'🍗',name:'Inihaw na Manok',desc:'Half grilled chicken with rice',price:145},
+      {emoji:'🥩',name:'Liempo Platter',desc:'Grilled pork belly slab with rice',price:155},
+    ]},
+    {cat:'Sides',items:[
+      {emoji:'🍚',name:'Sinangag',desc:'Garlic fried rice',price:30},
+      {emoji:'🥗',name:'Atchara',desc:'Pickled papaya relish',price:20},
+    ]},
+  ],
+  "Nanay Linda's Kitchen":[
+    {cat:'Breakfast',items:[
+      {emoji:'🍳',name:'Tapsilog',desc:'Beef tapa, garlic rice, sunny side egg',price:110},
+      {emoji:'🥓',name:'Longsilog',desc:'Longganisa, garlic rice, egg',price:100},
+      {emoji:'🐟',name:'Bangsilog',desc:'Bangus, garlic rice, egg',price:105},
+    ]},
+    {cat:'Merienda',items:[
+      {emoji:'🫔',name:'Champorado',desc:'Chocolate rice porridge with dried fish',price:65},
+      {emoji:'🥞',name:'Pancakes',desc:'Fluffy homestyle pancakes',price:75},
+    ]},
+  ],
+  'Barangay Bites':[
+    {cat:'Snacks',items:[
+      {emoji:'🍡',name:'Fish Ball Combo',desc:'10pcs fish ball with sweet sauce',price:45},
+      {emoji:'🧇',name:'Cheese Stick x5',desc:'Crispy fried cheese sticks',price:40},
+      {emoji:'🌭',name:'Kwek-Kwek',desc:'Orange battered quail eggs (8pcs)',price:35},
+    ]},
+    {cat:'Drinks & Desserts',items:[
+      {emoji:'🧃',name:'Buko Pandan Shake',desc:'Chilled coconut pandan shake',price:55},
+      {emoji:'🍨',name:'Halo-Halo',desc:'Mixed shaved ice dessert',price:75},
+    ]},
+  ],
+  'Cordova Mami House':[
+    {cat:'Noodles',items:[
+      {emoji:'🍜',name:'Beef Mami',desc:'Rich beef broth noodle soup',price:90},
+      {emoji:'🥣',name:'Lomi',desc:'Thick egg noodles in savory broth',price:95},
+      {emoji:'🍝',name:'Pancit Bihon',desc:'Rice noodles stir-fried with vegetables',price:85},
+    ]},
+    {cat:'Siomai',items:[
+      {emoji:'🥟',name:'Siomai (6 pcs)',desc:'Steamed pork dumplings with soy-calamansi',price:60},
+      {emoji:'🥟',name:'Siomai (12 pcs)',desc:'Double order',price:110},
+    ]},
+  ],
+  'Fil-Chi Food Corner':[
+    {cat:'Filipino-Chinese',items:[
+      {emoji:'🥟',name:'Tikoy',desc:'Sweet sticky rice cake',price:55},
+      {emoji:'🍝',name:'Pancit Canton',desc:'Egg noodles with pork and vegetables',price:90},
+      {emoji:'🥘',name:'Tofu Kare-Kare',desc:'Peanut-based stew with tofu',price:110},
+    ]},
+    {cat:'Desserts',items:[
+      {emoji:'🍮',name:'Leche Flan',desc:'Classic caramel custard',price:65},
+      {emoji:'🧁',name:'Biko',desc:'Sweet sticky rice cake with latik',price:50},
+    ]},
+  ],
+};
+const CATEGORIES=[
+  {icon:'🍽️',label:'All'},{icon:'🍚',label:'Rice Meals'},
+  {icon:'🍖',label:'BBQ'},{icon:'🍜',label:'Noodles'},
+  {icon:'🧃',label:'Snacks'},{icon:'🍨',label:'Desserts'},
+];
+
+let cart=[];
+let currentResto=null;
+let currentStatusFilter='all';
+
+/* ── ROLE ─────────────────────────────────────────────────── */
+function launchAdmin(){
+  document.getElementById('role-screen').style.display='none';
+  document.getElementById('admin-app').style.display='block';
+  initAdmin();
+}
+function launchCustomer(){
+  document.getElementById('role-screen').style.display='none';
+  document.getElementById('customer-app').style.display='block';
+  initCustomer();
+}
+function goHome(){
+  document.getElementById('role-screen').style.display='flex';
+  document.getElementById('admin-app').style.display='none';
+  document.getElementById('customer-app').style.display='none';
+}
+
+/* ── ADMIN ────────────────────────────────────────────────── */
+function initAdmin(){
+  buildBarChart();buildRecentOrders();buildActivityFeed();
+  buildFullOrders(ORDERS);buildAdminRestaurants();buildRiders();buildCustomersTable();
+}
+function buildBarChart(){
+  const max=Math.max(...WEEK_DATA);
+  const bc=document.getElementById('bar-chart'),bl=document.getElementById('bar-labels');
+  bc.innerHTML='';bl.innerHTML='';
+  WEEK_DATA.forEach((v,i)=>{
+    const b=document.createElement('div');b.className='bar'+(i===5?' highlight':'');b.style.height=(v/max*100)+'%';b.title=WEEK_DAYS[i]+': '+v+' orders';bc.appendChild(b);
+    const l=document.createElement('div');l.className='bar-label';l.textContent=WEEK_DAYS[i];bl.appendChild(l);
+  });
+}
+function buildRecentOrders(){
+  document.getElementById('recent-orders-table').innerHTML=
+    '<tr><th>Order</th><th>Customer</th><th>Status</th><th>Amount</th></tr>'+
+    ORDERS.slice(0,5).map(o=>`<tr><td style="color:var(--muted)">${o.id}</td><td>${o.customer}</td><td>${sBadge(o.status)}</td><td style="font-weight:600">₱${o.amount}</td></tr>`).join('');
+}
+function buildActivityFeed(){
+  document.getElementById('activity-feed').innerHTML=ACTIVITY.map(a=>
+    `<div class="activity-item"><div class="act-icon" style="background:${a.bg}">${a.icon}</div><div><div>${a.text}</div><div class="act-time">${a.time}</div></div></div>`).join('');
+}
+function buildFullOrders(data){
+  document.getElementById('order-count').textContent=data.length+' orders';
+  document.getElementById('full-orders-table').innerHTML=
+    '<tr><th>Order ID</th><th>Customer</th><th>Restaurant</th><th>Items</th><th>Amount</th><th>Status</th><th>Rider</th><th>Time</th></tr>'+
+    data.map(o=>`<tr><td style="color:var(--orange);font-weight:600">${o.id}</td><td>${o.customer}</td><td style="color:var(--muted)">${o.resto}</td><td style="color:var(--muted);font-size:12px">${o.items}</td><td style="font-weight:600">₱${o.amount}</td><td>${sBadge(o.status)}</td><td style="color:var(--muted)">${o.rider}</td><td style="color:var(--muted);font-size:12px">${o.time}</td></tr>`).join('');
+}
+function filterOrders(q){
+  buildFullOrders(ORDERS.filter(o=>
+    (currentStatusFilter==='all'||o.status===currentStatusFilter)&&
+    (o.id+o.customer+o.resto).toLowerCase().includes(q.toLowerCase())
+  ));
+}
+function filterStatus(s,btn){
+  currentStatusFilter=s;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterOrders(document.querySelector('.search-input').value);
+}
+function buildAdminRestaurants(){
+  const bgs=['#1e1a14','#1a1618','#141a1a','#1a1a14','#161820','#181818'];
+  document.getElementById('resto-grid').innerHTML=RESTAURANTS.map((r,i)=>`
+    <div class="resto-card" onclick="showToast('🏪','${r.name} — ${r.orders} orders today')">
+      <div class="resto-thumb" style="background:${bgs[i]}">${r.emoji}</div>
+      <div class="resto-info">
+        <div class="resto-name">${r.name}</div>
+        <div class="resto-meta"><span class="resto-rating">★ ${r.rating}</span><span>${r.orders} orders</span><span style="color:${r.status==='Open'?'var(--green)':'var(--amber)'}">${r.status}</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${r.cuisine}</div>
+      </div>
+    </div>`).join('');
+}
+function buildRiders(){
+  document.getElementById('rider-list').innerHTML=RIDERS.map(r=>`
+    <div class="rider-row">
+      <div class="rider-avatar">🛵</div>
+      <div><div class="rider-name">${r.name}</div><div class="rider-zone">📍 ${r.zone}</div></div>
+      <div style="margin-left:16px"><span class="badge ${r.status==='On Delivery'?'badge-transit':r.status==='Available'?'badge-delivered':'badge-cancelled'}">${r.status}</span></div>
+      <div class="rider-stats"><div><div class="rider-stat-val">${r.deliveries}</div><div class="rider-stat-lbl">Deliveries</div></div><div><div class="rider-stat-val">★ ${r.rating}</div><div class="rider-stat-lbl">Rating</div></div></div>
+    </div>`).join('');
+}
+function buildCustomersTable(){
+  document.getElementById('customer-table').innerHTML=
+    '<tr><th>Name</th><th>Barangay</th><th>Total Orders</th><th>Total Spent</th><th>Member Since</th></tr>'+
+    CUSTOMERS_DATA.map(c=>`<tr><td style="font-weight:500">${c.name}</td><td style="color:var(--muted)">${c.barangay}</td><td>${c.orders}</td><td style="color:var(--green);font-weight:600">${c.spent}</td><td style="color:var(--muted);font-size:12px">${c.since}</td></tr>`).join('');
+}
+function sBadge(s){
+  const m={'Delivered':'badge-delivered','Preparing':'badge-preparing','In Transit':'badge-transit','Cancelled':'badge-cancelled'};
+  return `<span class="badge ${m[s]||''}">${s}</span>`;
+}
+const PAGE_TITLES={dashboard:'Dashboard',orders:'Orders',restaurants:'Restaurants',riders:'Riders',customers:'Customers',settings:'Settings'};
+const PRIMARY_LABELS={dashboard:'+ New Order',orders:'+ New Order',restaurants:'+ Add Restaurant',riders:'+ Add Rider',customers:'+ Add Customer',settings:'Save Changes'};
+function nav(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('page-title').textContent=PAGE_TITLES[id];
+  document.getElementById('primary-action').textContent=PRIMARY_LABELS[id];
+}
+function openModal(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+function submitOrder(){
+  const customer=document.getElementById('f-customer').value.trim();
+  const resto=document.getElementById('f-resto').value;
+  const amount=document.getElementById('f-amount').value;
+  const address=document.getElementById('f-address').value.trim();
+  if(!customer||!amount||!address){showToast('⚠️','Please fill in all fields');return;}
+  const newId='#'+(1060+ORDERS.length);
+  ORDERS.unshift({id:newId,customer,resto,items:document.getElementById('f-items').value||'Custom order',amount:parseInt(amount),status:'Preparing',rider:'—',time:'Just now'});
+  buildFullOrders(ORDERS);buildRecentOrders();
+  document.getElementById('s-orders').textContent=parseInt(document.getElementById('s-orders').textContent)+1;
+  const cr=parseInt(document.getElementById('s-revenue').textContent.replace(',',''));
+  document.getElementById('s-revenue').textContent=(cr+parseInt(amount)).toLocaleString();
+  document.getElementById('pending-badge').textContent=ORDERS.filter(o=>o.status==='Preparing').length;
+  closeModal();
+  ['f-customer','f-amount','f-address','f-items'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅',`Order ${newId} placed for ${customer}!`);
+}
+
+/* ── CUSTOMER ─────────────────────────────────────────────── */
+function initCustomer(){
+  buildCatRow();buildCustRestoGrid(RESTAURANTS);
+  buildMyOrders();buildTrackingSteps();renderCart();
+}
+function buildCatRow(){
+  document.getElementById('cat-row').innerHTML=CATEGORIES.map((c,i)=>
+    `<div class="cat-pill ${i===0?'active':''}" onclick="catPillClick(this,'${c.label}')"><div class="cp-icon">${c.icon}</div><span>${c.label}</span></div>`).join('');
+}
+function catPillClick(el,label){
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  filterCatByName(label);
+}
+function filterCatByName(label){
+  const f=label==='All'?RESTAURANTS:RESTAURANTS.filter(r=>r.tag===label||r.cuisine.toLowerCase().includes(label.toLowerCase()));
+  buildCustRestoGrid(f.length?f:RESTAURANTS);
+}
+function heroSearch(q){
+  buildCustRestoGrid(!q.trim()?RESTAURANTS:RESTAURANTS.filter(r=>r.name.toLowerCase().includes(q.toLowerCase())||r.cuisine.toLowerCase().includes(q.toLowerCase())));
+}
+function buildCustRestoGrid(list){
+  document.getElementById('cust-resto-grid').innerHTML=list.length?list.map(r=>`
+    <div class="cust-resto-card" onclick="openMenu('${r.name.replace(/'/g,"\\'")}')">
+      <div class="crc-thumb" style="background:${r.bg}">
+        ${r.emoji}
+        <span class="crc-badge" style="background:${r.status==='Open'?'var(--green)':'var(--amber)'}">${r.status}</span>
+      </div>
+      <div class="crc-body">
+        <div class="crc-name">${r.name}</div>
+        <div class="crc-meta"><span>★ ${r.rating}</span><span>15–25 min</span><span>₱25 delivery</span></div>
+        <div class="crc-tags"><span class="crc-tag">${r.cuisine}</span></div>
+      </div>
+    </div>`).join(''):'<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--cl-muted)">No restaurants found 😕</div>';
+}
+function openMenu(restoName){
+  currentResto=restoName;
+  const r=RESTAURANTS.find(x=>x.name===restoName);
+  document.getElementById('menu-emoji').textContent=r.emoji;
+  document.getElementById('menu-name').textContent=r.name;
+  document.getElementById('menu-meta').textContent=`${r.cuisine} · ★ ${r.rating} · ${r.status} · 15–25 min`;
+  buildMenuItems(restoName);
+  custNav('menu',null);
+}
+function buildMenuItems(name){
+  const cats=MENU_DATA[name]||[];
+  document.getElementById('menu-items-list').innerHTML=cats.map(cat=>`
+    <div class="menu-cat-title">${cat.cat}</div>
+    ${cat.items.map(item=>`
+      <div class="menu-item">
+        <div class="mi-emoji">${item.emoji}</div>
+        <div class="mi-info">
+          <div class="mi-name">${item.name}</div>
+          <div class="mi-desc">${item.desc}</div>
+          <div class="mi-price">₱${item.price}</div>
+        </div>
+        <button class="mi-add" onclick="addToCart('${item.name.replace(/'/g,"\\'")}',${item.price},'${item.emoji}')">+</button>
+      </div>`).join('')}`).join('');
+  renderCart();
+}
+function showCartFromNav(){
+  if(currentResto){custNav('menu',null);}
+  else{showToast('🛒','Browse a restaurant to add items!');}
+}
+
+/* CART */
+function addToCart(name,price,emoji){
+  const ex=cart.find(i=>i.name===name);
+  if(ex)ex.qty++;else cart.push({name,price,emoji,qty:1});
+  renderCart();
+  showToast('✅',name+' added!');
+}
+function changeQty(name,delta){
+  const item=cart.find(i=>i.name===name);
+  if(!item)return;
+  item.qty+=delta;
+  if(item.qty<=0)cart=cart.filter(i=>i.name!==name);
+  renderCart();
+}
+function renderCart(){
+  const count=cart.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('cart-count').textContent=count;
+  const list=document.getElementById('cart-items-list');
+  const summary=document.getElementById('cart-summary');
+  const btn=document.getElementById('checkout-btn');
+  if(!cart.length){
+    list.innerHTML='<div class="cart-empty">Your cart is empty.<br>Add items to get started!</div>';
+    summary.style.display='none';btn.disabled=true;return;
+  }
+  list.innerHTML=cart.map(item=>`
+    <div class="cart-item">
+      <div class="ci-emoji">${item.emoji}</div>
+      <div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-price">₱${item.price} each</div></div>
+      <div class="ci-qty">
+        <button class="qty-btn" onclick="changeQty('${item.name.replace(/'/g,"\\'")}',−1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty('${item.name.replace(/'/g,"\\'")}',1)">+</button>
+      </div>
+    </div>`).join('');
+  const sub=cart.reduce((a,i)=>a+(i.price*i.qty),0);
+  document.getElementById('cart-subtotal').textContent='₱'+sub;
+  document.getElementById('cart-total').textContent='₱'+(sub+25);
+  summary.style.display='block';btn.disabled=false;
+}
+
+/* CHECKOUT */
+function openCheckout(){
+  const sub=cart.reduce((a,i)=>a+(i.price*i.qty),0);
+  document.getElementById('co-summary-list').innerHTML=
+    cart.map(i=>`<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--cl-muted);margin-bottom:5px"><span>${i.emoji} ${i.name} x${i.qty}</span><span>₱${i.price*i.qty}</span></div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--cl-muted);margin-bottom:5px"><span>Delivery Fee</span><span>₱25</span></div>`+
+    `<div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:var(--cl-text);margin-top:8px;padding-top:8px;border-top:1px solid var(--cl-border)"><span>Total</span><span>₱${sub+25}</span></div>`;
+  document.getElementById('checkout-overlay').classList.add('open');
+}
+function closeCheckout(){document.getElementById('checkout-overlay').classList.remove('open');}
+function selectPay(el){document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+function placeOrder(){
+  const newId='#'+(1060+ORDERS.length);
+  const sub=cart.reduce((a,i)=>a+(i.price*i.qty),0);
+  ORDERS.unshift({id:newId,customer:'Maria Santos',resto:currentResto||'—',items:cart.map(i=>`${i.name} x${i.qty}`).join(', '),amount:sub+25,status:'Preparing',rider:'—',time:'Just now'});
+  buildMyOrders();buildFullOrders(ORDERS);buildRecentOrders();
+  cart=[];renderCart();closeCheckout();
+  document.getElementById('track-order-id').textContent=newId;
+  custNav('tracking',document.querySelectorAll('.cn-link')[2]);
+  buildTrackingSteps();
+  showToast('🎉','Order placed! Your food is being prepared 🍳');
+}
+
+/* MY ORDERS */
+function buildMyOrders(){
+  const mine=ORDERS.filter(o=>o.customer==='Maria Santos');
+  const cm={'Delivered':'cbadge-d','Preparing':'cbadge-p','In Transit':'cbadge-t','Cancelled':'cbadge-c'};
+  document.getElementById('my-orders-list').innerHTML=mine.length?mine.map(o=>`
+    <div class="moc" onclick="document.getElementById('track-order-id').textContent='${o.id}';custNav('tracking',document.querySelectorAll('.cn-link')[2])">
+      <div class="moc-icon">🍱</div>
+      <div class="moc-info"><div class="moc-id">${o.id} · ${o.time}</div><div class="moc-resto">${o.resto}</div><div class="moc-items">${o.items}</div></div>
+      <div class="moc-right"><div class="moc-price">₱${o.amount}</div><span class="cbadge ${cm[o.status]||''}">${o.status}</span></div>
+    </div>`).join(''):'<div style="text-align:center;padding:48px;color:var(--cl-muted)">No orders yet.<br>Start ordering! 🍱</div>';
+}
+
+/* TRACKING STEPS */
+function buildTrackingSteps(){
+  const steps=[
+    {icon:'✅',label:'Order Confirmed',desc:'Your order has been received',done:true},
+    {icon:'🍳',label:'Being Prepared',desc:'The restaurant is cooking your food now',done:true},
+    {icon:'🛵',label:'Rider Picked Up',desc:'Your rider is heading to you',active:true},
+    {icon:'📦',label:'Delivered',desc:'Enjoy your meal!',done:false},
+  ];
+  const c=document.getElementById('track-steps');
+  const lineBg=c.querySelector('.track-line-bg')||Object.assign(document.createElement('div'),{className:'track-line-bg'});
+  const lineFill=c.querySelector('.track-line-fill')||Object.assign(document.createElement('div'),{className:'track-line-fill',id:'track-fill'});
+  c.innerHTML='';c.appendChild(lineBg);c.appendChild(lineFill);
+  steps.forEach(s=>{
+    const d=document.createElement('div');d.className='track-step';
+    d.innerHTML=`<div class="ts-dot ${s.done?'done':s.active?'active':''}">${s.icon}</div><div class="ts-info"><h4>${s.label}</h4><p>${s.desc}</p></div>`;
+    c.appendChild(d);
+  });
+  setTimeout(()=>{const f=document.getElementById('track-fill');if(f)f.style.height='58%';},300);
+}
+
+/* CUSTOMER NAV */
+function custNav(id,el){
+  document.querySelectorAll('.cust-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('cust-page-'+id).classList.add('active');
+  if(el){document.querySelectorAll('.cn-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');}
+  if(id==='my-orders')buildMyOrders();
+  if(id==='tracking')buildTrackingSteps();
+}
+
+/* TOAST */
+let toastTimer;
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-icon').textContent=icon;
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
 </body>
 </html>
