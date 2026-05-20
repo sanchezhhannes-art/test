@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Track Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2d42;
+    --navy-card: #162235;
+    --orange: #f46b1b;
+    --green: #2ecc71;
+    --text-main: #f5f0e8;
+    --text-muted: #8fa5bb;
+    --border: rgba(255,255,255,0.08);
+    --card-bg: #162235;
+    --pill-bg: rgba(244,107,27,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--text-main); min-height: 100vh; }
+  h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,27,42,0.96); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem; display: flex; align-items: center; justify-content: space-between; height: 64px;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--orange); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--text-muted); font-size: 0.875rem; text-decoration: none; font-weight: 500; }
+  .nav-links a.active { color: var(--text-main); }
+  .nav-cta {
+    background: var(--orange); color: white; border: none;
+    padding: 0.5rem 1.25rem; border-radius: 24px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.875rem; cursor: pointer;
+  }
+
+  .page-wrap {
+    display: grid; grid-template-columns: 480px 1fr;
+    gap: 2rem; max-width: 1100px; margin: 0 auto; padding: 3rem 2rem;
+    align-items: start;
+  }
+
+  /* LEFT PANEL */
+  .track-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 24px; padding: 2rem; margin-bottom: 1.25rem;
+  }
+  .track-order-id { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem; }
+  .track-status-label { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.35rem; }
+  .track-eta { color: var(--text-muted); font-size: 0.875rem; }
+  .track-eta span { color: var(--green); font-weight: 600; }
+
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.07); border-radius: 8px; height: 6px; margin: 1.5rem 0; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; border-radius: 8px;
+    background: linear-gradient(90deg, var(--orange), var(--green));
+    transition: width 0.7s ease;
+  }
+
+  .steps-list { display: flex; flex-direction: column; gap: 0; }
+  .step-row { display: flex; align-items: flex-start; gap: 1rem; }
+  .step-dot-wrap { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; transition: all 0.4s; flex-shrink: 0;
+  }
+  .step-dot.done { background: var(--green); border-color: var(--green); color: white; }
+  .step-dot.active { background: var(--orange); border-color: var(--orange); color: white; animation: pulse 1.5s infinite; }
+  .step-line { width: 2px; height: 28px; background: var(--border); }
+  .step-line.done { background: var(--green); }
+  .step-content { padding-bottom: 1.25rem; }
+  .step-title { font-weight: 600; font-size: 0.9rem; }
+  .step-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(244,107,27,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(244,107,27,0); }
+  }
+
+  /* RIDER CARD */
+  .rider-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;
+  }
+  .rider-avatar {
+    width: 52px; height: 52px; background: var(--pill-bg);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; flex-shrink: 0;
+  }
+  .rider-name { font-weight: 700; font-size: 1rem; }
+  .rider-tag { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; }
+  .rider-badge {
+    margin-left: auto; background: rgba(46,204,113,0.15);
+    color: var(--green); font-size: 0.75rem; font-weight: 700;
+    padding: 0.35rem 0.75rem; border-radius: 12px;
+  }
+  .rider-phone {
+    width: 36px; height: 36px; background: var(--pill-bg); border-radius: 50%;
+    border: 1px solid rgba(244,107,27,0.2); display: flex; align-items: center;
+    justify-content: center; font-size: 1rem; cursor: pointer; flex-shrink: 0;
+  }
+
+  .action-row { display: flex; gap: 0.875rem; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--text-main);
+    border: 1px solid var(--border); padding: 0.875rem;
+    border-radius: 28px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.875rem; cursor: pointer;
+  }
+  .btn-primary {
+    flex: 1; background: var(--orange); color: white; border: none;
+    padding: 0.875rem; border-radius: 28px; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.875rem; cursor: pointer;
+  }
+
+  /* RIGHT PANEL - MAP */
+  .map-panel { position: sticky; top: 80px; }
+  .map-area {
+    background: var(--navy-mid); border-radius: 24px; height: 420px;
+    border: 1px solid var(--border); position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .map-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .map-road-h {
+    position: absolute; height: 2px; background: rgba(255,255,255,0.06); border-radius: 1px;
+  }
+  .map-road-v {
+    position: absolute; width: 2px; background: rgba(255,255,255,0.06); border-radius: 1px;
+  }
+  .map-restaurant {
+    position: absolute; top: 30%; left: 25%;
+    background: var(--pill-bg); border: 2px solid var(--orange);
+    border-radius: 50%; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  }
+  .map-home {
+    position: absolute; bottom: 25%; right: 20%;
+    background: rgba(46,204,113,0.15); border: 2px solid var(--green);
+    border-radius: 50%; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  }
+  .map-rider-dot {
+    position: absolute; top: 50%; left: 52%;
+    transform: translate(-50%, -50%);
+    animation: rider-move 3s ease-in-out infinite alternate;
+  }
+  .map-rider-inner {
+    width: 40px; height: 40px; background: var(--orange); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; border: 3px solid white;
+    box-shadow: 0 0 0 6px rgba(244,107,27,0.2);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes rider-move {
+    0% { top: 52%; left: 45%; }
+    100% { top: 48%; left: 56%; }
+  }
+  .route-line {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+  }
+  .map-label {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    background: var(--navy-card); color: var(--text-muted); font-size: 0.75rem;
+    padding: 0.3rem 0.875rem; border-radius: 10px; border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  /* MINI SUMMARY */
+  .mini-summary {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.25rem 1.5rem; margin-top: 1.25rem;
+  }
+  .mini-title { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
+  .mini-item { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.6rem; font-size: 0.85rem; }
+  .mini-item:last-child { margin-bottom: 0; }
+  .mini-emoji { font-size: 1.1rem; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+    background: var(--card-bg); border: 1px solid rgba(46,204,113,0.4);
+    color: var(--text-main); padding: 0.875rem 1.25rem; border-radius: 14px;
+    font-size: 0.875rem; display: flex; align-items: center; gap: 0.6rem;
+    transform: translateY(120%); transition: transform 0.35s ease;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Cordova <span>Eats</span></div>
+  <div class="nav-links">
+    <a href="01_home.html">Home</a>
+    <a href="02_menu.html">Browse Menu</a>
+    <a href="04_track.html" class="active">Track Order</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:1.25rem;">
+    <span style="color:var(--text-muted);font-size:1.2rem;">🛒</span>
+    <button class="nav-cta" onclick="window.location='02_menu.html'">Order More</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <!-- LEFT -->
+  <div>
+    <div class="track-card">
+      <div class="track-order-id">Order #CDV-2024-0187 &nbsp;·&nbsp; Mang Boy's Grill</div>
+      <div class="track-status-label" id="statusLabel">Rider On the Way 🛵</div>
+      <div class="track-eta">Estimated arrival: <span id="etaLabel">8–12 minutes</span></div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar" style="width:60%"></div>
+      </div>
+
+      <div class="steps-list" id="stepsList"></div>
+    </div>
+
+    <div class="rider-card">
+      <div class="rider-avatar">🧑</div>
+      <div>
+        <div class="rider-name">Kuya Renz</div>
+        <div class="rider-tag">Delivery Rider · Honda Click 125</div>
+      </div>
+      <div class="rider-badge">⭐ 4.9</div>
+      <div class="rider-phone">📞</div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-outline" onclick="simulateNextStep()">Simulate Next Step ▶</button>
+      <button class="btn-primary" onclick="window.location='02_menu.html'">Order More</button>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="map-panel">
+    <div class="map-area">
+      <div class="map-grid"></div>
+      <!-- Roads -->
+      <div class="map-road-h" style="top:35%;left:0;right:0;"></div>
+      <div class="map-road-h" style="top:65%;left:0;right:0;"></div>
+      <div class="map-road-v" style="left:30%;top:0;bottom:0;"></div>
+      <div class="map-road-v" style="left:65%;top:0;bottom:0;"></div>
+      <!-- Pins -->
+      <div class="map-restaurant" title="Mang Boy's Grill">🍗</div>
+      <div class="map-home" title="Your Location">🏠</div>
+      <!-- Rider -->
+      <div class="map-rider-dot">
+        <div class="map-rider-inner">🛵</div>
+      </div>
+      <svg class="route-line" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 100 130 Q 200 180 310 200 Q 400 220 480 280" stroke="rgba(244,107,27,0.4)" stroke-width="2.5" stroke-dasharray="6 4" fill="none"/>
+      </svg>
+      <div class="map-label">🛵 Rider is on the way · Cordova</div>
+    </div>
+
+    <div class="mini-summary">
+      <div class="mini-title">Items in this order</div>
+      <div class="mini-item"><span class="mini-emoji">🍗</span><span>Chicken Inasal × 1</span><span style="margin-left:auto;color:var(--orange);font-weight:600;">₱85</span></div>
+      <div class="mini-item"><span class="mini-emoji">🍜</span><span>Lomi Special × 2</span><span style="margin-left:auto;color:var(--orange);font-weight:600;">₱140</span></div>
+      <div class="mini-item"><span class="mini-emoji">🧃</span><span>Buko Juice × 2</span><span style="margin-left:auto;color:var(--orange);font-weight:600;">₱80</span></div>
+      <div style="border-top:1px solid var(--border);margin-top:0.75rem;padding-top:0.75rem;display:flex;justify-content:space-between;font-weight:700;font-size:0.9rem;">
+        <span>Total</span><span style="color:var(--orange);">₱334</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span style="color:#2ecc71;">✅</span>
+  <span id="toastMsg">Status updated!</span>
+</div>
+
+<script>
+let trackStep = 2;
+const steps = [
+  { title: "Order Confirmed", sub: "Restaurant accepted your order" },
+  { title: "Being Prepared", sub: "Kitchen is cooking your food" },
+  { title: "Rider On the Way", sub: "Your rider picked up the order" },
+  { title: "Arriving Soon", sub: "Almost at your doorstep" },
+  { title: "Delivered!", sub: "Enjoy your meal 🎉" },
+];
+const statusLabels = ["Order Confirmed ✅","Being Prepared 👨‍🍳","Rider On the Way 🛵","Arriving Soon 🏠","Delivered! 🎉"];
+const etaLabels = ["~25–30 min","~15–20 min","8–12 min","2–4 min","Delivered!"];
+const progressWidths = ["15%","40%","60%","85%","100%"];
+
+function renderSteps() {
+  document.getElementById('statusLabel').textContent = statusLabels[trackStep];
+  document.getElementById('etaLabel').textContent = etaLabels[trackStep];
+  document.getElementById('progressBar').style.width = progressWidths[trackStep];
+
+  document.getElementById('stepsList').innerHTML = steps.map((s, i) => {
+    const isDone = i < trackStep;
+    const isActive = i === trackStep;
+    const isLast = i === steps.length - 1;
+    return `
+      <div class="step-row">
+        <div class="step-dot-wrap">
+          <div class="step-dot ${isDone?'done':''} ${isActive?'active':''}">${isDone?'✓':isActive?'→':''}</div>
+          ${!isLast ? `<div class="step-line ${isDone?'done':''}"></div>` : ''}
+        </div>
+        <div class="step-content">
+          <div class="step-title" style="color:${isDone||isActive?'var(--text-main)':'var(--text-muted)'}">${s.title}</div>
+          <div class="step-sub">${s.sub}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function simulateNextStep() {
+  if(trackStep < 4) {
+    trackStep++;
+    renderSteps();
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = trackStep === 4 ? '🎉 Your order has been delivered!' : '✅ Status updated!';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+}
+
+renderSteps();
+</script>
+</body>
+</html>

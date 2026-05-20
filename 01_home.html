@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2d42;
+    --navy-card: #162235;
+    --orange: #f46b1b;
+    --orange-light: #ff8c42;
+    --green: #2ecc71;
+    --cream: #f5f0e8;
+    --text-main: #f5f0e8;
+    --text-muted: #8fa5bb;
+    --border: rgba(255,255,255,0.08);
+    --card-bg: #162235;
+    --pill-bg: rgba(244,107,27,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text-main);
+    min-height: 100vh;
+  }
+  h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,27,42,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--orange); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--text-muted); font-size: 0.875rem; text-decoration: none; font-weight: 500; }
+  .nav-links a.active { color: var(--text-main); }
+  .nav-cta {
+    background: var(--orange); color: white; border: none;
+    padding: 0.5rem 1.25rem; border-radius: 24px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.875rem; cursor: pointer;
+  }
+
+  /* HERO */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; min-height: calc(100vh - 64px); align-items: center;
+    padding: 0 4rem;
+  }
+  .hero-left { padding: 4rem 2rem 4rem 0; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--pill-bg); border: 1px solid rgba(244,107,27,0.3);
+    color: var(--orange); font-size: 0.75rem; font-weight: 600;
+    padding: 0.375rem 0.875rem; border-radius: 20px; margin-bottom: 1.5rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800;
+    line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.25rem;
+  }
+  .hero-title span { color: var(--orange); }
+  .hero-sub {
+    color: var(--text-muted); font-size: 1.05rem; line-height: 1.7;
+    max-width: 460px; margin-bottom: 2.5rem; font-weight: 300;
+  }
+  .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--orange); color: white; border: none;
+    padding: 0.875rem 2rem; border-radius: 32px; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 1rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-outline {
+    background: transparent; color: var(--text-main);
+    border: 1px solid var(--border); padding: 0.875rem 2rem;
+    border-radius: 32px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 1rem; cursor: pointer;
+  }
+  .hero-stats {
+    display: flex; gap: 2.5rem; margin-top: 3rem; padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .stat-item .num { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; }
+  .stat-item .num span { color: var(--orange); }
+  .stat-item .label { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem; }
+
+  /* PHONE MOCKUP */
+  .hero-right {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem 0 3rem 2rem;
+  }
+  .phone-mockup {
+    width: 280px; height: 560px;
+    background: var(--navy-card); border-radius: 36px;
+    border: 1px solid var(--border); position: relative;
+    overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .phone-top {
+    background: var(--navy-mid); padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .phone-greeting { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+  .phone-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
+  .phone-title span { color: var(--orange); }
+  .phone-search {
+    background: rgba(255,255,255,0.07); border-radius: 20px;
+    padding: 0.5rem 0.875rem; font-size: 0.72rem; color: var(--text-muted);
+    margin-top: 0.875rem; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .phone-cats {
+    display: flex; gap: 0.5rem; padding: 0.875rem 1.25rem 0.5rem; overflow-x: auto;
+  }
+  .phone-cat {
+    background: var(--pill-bg); border: 1px solid rgba(244,107,27,0.2);
+    color: var(--orange); font-size: 0.65rem; padding: 0.25rem 0.6rem;
+    border-radius: 12px; white-space: nowrap; font-weight: 600;
+  }
+  .phone-cat.active-cat { background: var(--orange); color: white; border-color: var(--orange); }
+  .phone-food-list { padding: 0.5rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .phone-food-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    background: rgba(255,255,255,0.05); border-radius: 12px;
+    padding: 0.6rem 0.75rem; border: 1px solid var(--border);
+  }
+  .food-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .food-info { flex: 1; min-width: 0; }
+  .food-name { font-size: 0.72rem; font-weight: 600; }
+  .food-shop { font-size: 0.62rem; color: var(--text-muted); }
+  .food-price { font-size: 0.72rem; font-weight: 700; color: var(--orange); }
+  .phone-bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: var(--navy-mid); border-top: 1px solid var(--border);
+    display: flex; justify-content: space-around; padding: 0.75rem 0.5rem 1.25rem;
+  }
+  .bottom-icon { font-size: 0.6rem; color: var(--text-muted); text-align: center; }
+  .bottom-icon.active { color: var(--orange); }
+  .bottom-icon div { font-size: 1.1rem; margin-bottom: 0.1rem; }
+
+  /* FEATURES */
+  .section { padding: 5rem 4rem; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; color: var(--orange);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem); font-weight: 800;
+    letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: var(--text-muted); font-size: 1rem; line-height: 1.7;
+    max-width: 520px; font-weight: 300; margin-bottom: 3rem;
+  }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+  }
+  .feature-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.75rem;
+  }
+  .feature-icon {
+    width: 44px; height: 44px; background: var(--pill-bg);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 1.25rem;
+  }
+  .feature-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .feature-desc { color: var(--text-muted); font-size: 0.875rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Cordova <span>Eats</span></div>
+  <div class="nav-links">
+    <a href="01_home.html" class="active">Home</a>
+    <a href="02_menu.html">Browse Menu</a>
+    <a href="04_track.html">Track Order</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:1.25rem;">
+    <span style="color:var(--text-muted);font-size:1.2rem;">🛒</span>
+    <button class="nav-cta">Order Now</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">🏘 Community-Driven Platform</div>
+    <h1 class="hero-title">Cordova Food<br><span>Delivery System</span></h1>
+    <p class="hero-sub">Fast, local, and affordable food delivery — built for Cordova, by Cordova. Supporting local businesses and connecting residents with great food nearby.</p>
+    <div class="hero-actions">
+      <a href="02_menu.html"><button class="btn-primary">🍽 Browse Menu</button></a>
+      <a href="04_track.html"><button class="btn-outline">📍 Track My Order</button></a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="num">15<span>min</span></div><div class="label">Avg. Delivery Time</div></div>
+      <div class="stat-item"><div class="num">30<span>+</span></div><div class="label">Local Restaurants</div></div>
+      <div class="stat-item"><div class="num">₱29</div><div class="label">Delivery Fee</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="phone-mockup">
+      <div class="phone-top">
+        <div class="phone-greeting">Good afternoon, Juan 👋</div>
+        <div class="phone-title">What are you <span>craving?</span></div>
+        <div class="phone-search">🔍 Search restaurants or food...</div>
+      </div>
+      <div class="phone-cats">
+        <div class="phone-cat active-cat">All</div>
+        <div class="phone-cat">🍱 Rice</div>
+        <div class="phone-cat">🍜 Soup</div>
+        <div class="phone-cat">🍗 Chicken</div>
+        <div class="phone-cat">🧃 Drinks</div>
+      </div>
+      <div class="phone-food-list">
+        <div class="phone-food-item">
+          <div class="food-icon">🍗</div>
+          <div class="food-info"><div class="food-name">Chicken Inasal</div><div class="food-shop">Mang Boy's Grill</div></div>
+          <div class="food-price">₱85</div>
+        </div>
+        <div class="phone-food-item">
+          <div class="food-icon">🍜</div>
+          <div class="food-info"><div class="food-name">Lomi Special</div><div class="food-shop">Aling Nena's</div></div>
+          <div class="food-price">₱70</div>
+        </div>
+        <div class="phone-food-item">
+          <div class="food-icon">🥗</div>
+          <div class="food-info"><div class="food-name">Pinakbet Bowl</div><div class="food-shop">Cordova Kusina</div></div>
+          <div class="food-price">₱65</div>
+        </div>
+        <div class="phone-food-item">
+          <div class="food-icon">🍱</div>
+          <div class="food-info"><div class="food-name">Sinugba Rice Meal</div><div class="food-shop">Bayside Bites</div></div>
+          <div class="food-price">₱95</div>
+        </div>
+      </div>
+      <div class="phone-bottom-bar">
+        <div class="bottom-icon active"><div>🏠</div>Home</div>
+        <div class="bottom-icon"><div>🔍</div>Search</div>
+        <div class="bottom-icon"><div>📍</div>Track</div>
+        <div class="bottom-icon"><div>👤</div>Profile</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">Why Choose Us</div>
+  <h2 class="section-title">Built Different.<br>Built for Cordova.</h2>
+  <p class="section-sub">We solve real problems for our community — shorter distances, lower fees, and direct support to the businesses you already love.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Faster Delivery</div>
+      <div class="feature-desc">Hyper-local coverage means shorter distances and average delivery times under 20 minutes within Cordova.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💸</div>
+      <div class="feature-title">Lower Fees</div>
+      <div class="feature-desc">Skip the big platform markups. Our community-first model keeps delivery fees affordable for everyone.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📍</div>
+      <div class="feature-title">Real-Time Tracking</div>
+      <div class="feature-desc">Know exactly where your order is — from the restaurant kitchen to your doorstep.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤝</div>
+      <div class="feature-title">Support Local</div>
+      <div class="feature-desc">Every order goes directly to a local business owner in your community. No outside chains, just neighbors.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <div class="feature-title">Secure & Simple</div>
+      <div class="feature-desc">Easy sign-in with your local account. Your data stays safe, your orders stay private.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📲</div>
+      <div class="feature-title">Easy Ordering</div>
+      <div class="feature-desc">A clean, intuitive ordering flow so you can go from craving to checkout in under a minute.</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
