@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Restaurants</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a; --navy-mid:#1a2d42; --navy-card:#162235;
+    --orange:#f46b1b; --green:#2ecc71; --red:#e74c3c; --yellow:#f1c40f;
+    --text-main:#f5f0e8; --text-muted:#8fa5bb;
+    --border:rgba(255,255,255,0.08); --card-bg:#162235;
+    --pill-bg:rgba(244,107,27,0.12); --sidebar-w:240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text-main); min-height:100vh; display:flex; }
+  h1,h2,h3 { font-family:'Syne',sans-serif; }
+
+  .sidebar { width:var(--sidebar-w); background:var(--navy-card); border-right:1px solid var(--border); min-height:100vh; display:flex; flex-direction:column; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.5rem 1.25rem; border-bottom:1px solid var(--border); }
+  .sidebar-logo .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; }
+  .sidebar-logo .logo span { color:var(--orange); }
+  .sidebar-logo .admin-tag { font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+  .sidebar-nav { flex:1; padding:1.25rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem; }
+  .nav-section-label { font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:0.75rem 0.75rem 0.4rem; }
+  .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.875rem; border-radius:12px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; cursor:pointer; }
+  .nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav-item.active { background:var(--pill-bg); color:var(--orange); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-item .badge { margin-left:auto; background:var(--orange); color:white; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:8px; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+  .admin-avatar { width:34px; height:34px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; border:1px solid rgba(244,107,27,0.3); }
+
+  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+  .topbar { background:rgba(13,27,42,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+  .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+  .notif-btn { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:0.4rem 0.6rem; cursor:pointer; font-size:1rem; position:relative; }
+  .notif-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; background:var(--orange); border-radius:50%; }
+
+  .content { padding:2rem; }
+  .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.5rem; }
+  .page-header h2 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  .page-header p { color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem; }
+  .btn-primary { background:var(--orange); color:white; border:none; padding:0.625rem 1.25rem; border-radius:12px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.875rem; cursor:pointer; }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.25rem; display:flex; align-items:center; gap:1rem; }
+  .stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; }
+  .stat-label { font-size:0.75rem; color:var(--text-muted); }
+
+  /* FILTER */
+  .filter-row { display:flex; gap:0.75rem; margin-bottom:1.5rem; align-items:center; }
+  .filter-tab { padding:0.45rem 1rem; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:0.825rem; font-weight:500; cursor:pointer; }
+  .filter-tab.active { background:var(--orange); border-color:var(--orange); color:white; }
+  .search-box { margin-left:auto; display:flex; align-items:center; gap:0.5rem; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:0.5rem 0.875rem; }
+  .search-box input { background:none; border:none; color:var(--text-main); font-family:'DM Sans',sans-serif; font-size:0.875rem; outline:none; width:180px; }
+  .search-box input::placeholder { color:var(--text-muted); }
+
+  /* RESTAURANT GRID */
+  .rest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:1.5rem; }
+  .rest-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .rest-banner { height:80px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; }
+  .rest-body { padding:1.25rem; }
+  .rest-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.75rem; }
+  .rest-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .rest-owner { font-size:0.78rem; color:var(--text-muted); margin-top:0.15rem; }
+  .online-badge { font-size:0.72rem; font-weight:600; padding:0.25rem 0.625rem; border-radius:8px; white-space:nowrap; }
+  .badge-online { background:rgba(46,204,113,0.15); color:var(--green); }
+  .badge-offline { background:rgba(139,165,187,0.1); color:var(--text-muted); }
+  .badge-pending { background:rgba(241,196,15,0.15); color:var(--yellow); }
+  .rest-meta { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:1rem; }
+  .r-meta-item { text-align:center; background:rgba(255,255,255,0.04); border-radius:10px; padding:0.5rem; }
+  .r-meta-val { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; }
+  .r-meta-label { font-size:0.62rem; color:var(--text-muted); margin-top:0.1rem; }
+  .rest-actions { display:flex; gap:0.5rem; }
+  .r-btn { flex:1; font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; padding:0.5rem; border-radius:10px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text-muted); }
+  .r-btn.orange { background:var(--pill-bg); border-color:rgba(244,107,27,0.2); color:var(--orange); }
+  .r-btn.danger { border-color:rgba(231,76,60,0.2); color:var(--red); background:rgba(231,76,60,0.06); }
+
+  /* MENU PREVIEW TABLE */
+  .card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .card-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .card-action { font-size:0.78rem; color:var(--orange); cursor:pointer; font-weight:500; background:none; border:none; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; padding:0.75rem 1.5rem; text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:0.875rem 1.5rem; font-size:0.875rem; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  .item-pill { display:inline-flex; align-items:center; gap:0.4rem; background:rgba(255,255,255,0.05); border-radius:8px; padding:0.2rem 0.5rem; font-size:0.78rem; }
+  .avail-toggle { display:inline-flex; align-items:center; gap:0.5rem; font-size:0.8rem; }
+  .toggle-track { width:32px; height:18px; border-radius:9px; position:relative; cursor:pointer; flex-shrink:0; }
+  .toggle-track.on { background:var(--green); }
+  .toggle-track.off { background:rgba(139,165,187,0.2); }
+  .toggle-thumb { position:absolute; top:2px; width:14px; height:14px; background:white; border-radius:50%; transition:left 0.2s; }
+  .toggle-track.on .toggle-thumb { left:16px; }
+  .toggle-track.off .toggle-thumb { left:2px; }
+  .action-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; padding:0.3rem 0.625rem; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; margin-right:0.375rem; }
+  .action-btn:hover { border-color:var(--orange); color:var(--orange); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Cordova <span>Eats</span></div>
+    <div class="admin-tag">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="05_admin_dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="06_admin_orders.html"><span class="icon">📋</span> Orders <span class="badge">12</span></a>
+    <a class="nav-item" href="07_admin_riders.html"><span class="icon">🛵</span> Riders</a>
+    <a class="nav-item active" href="08_admin_restaurants.html"><span class="icon">🏪</span> Restaurants</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="#"><span class="icon">👥</span> Customers</a>
+    <a class="nav-item" href="09_admin_revenue.html"><span class="icon">💰</span> Revenue</a>
+    <a class="nav-item" href="10_admin_announcements.html"><span class="icon">📣</span> Announcements</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span> Settings</a>
+    <a class="nav-item" href="01_home.html"><span class="icon">↗️</span> Customer View</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-avatar">👨‍💼</div>
+    <div><div style="font-size:0.82rem;font-weight:600;">Admin Cordova</div><div style="font-size:0.7rem;color:var(--text-muted);">Super Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Restaurants Management</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="color:var(--text-muted);font-size:0.8rem;">May 20, 2026</span>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div><h2>Restaurants</h2><p>Manage local business partners and their menus.</p></div>
+      <button class="btn-primary">+ Add Restaurant</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(46,204,113,0.12);">🟢</div><div><div class="stat-val">8</div><div class="stat-label">Online Now</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(139,165,187,0.12);">⚫</div><div><div class="stat-val">2</div><div class="stat-label">Offline</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(241,196,15,0.12);">🕐</div><div><div class="stat-val">1</div><div class="stat-label">Pending Approval</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--pill-bg);">🍽</div><div><div class="stat-val">87</div><div class="stat-label">Menu Items Total</div></div></div>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-tab active">All</button>
+      <button class="filter-tab">Online</button>
+      <button class="filter-tab">Offline</button>
+      <button class="filter-tab">Pending</button>
+      <div class="search-box">🔍 <input type="text" placeholder="Search restaurant..."></div>
+    </div>
+
+    <div class="rest-grid">
+
+      <div class="rest-card">
+        <div class="rest-banner" style="background:rgba(244,107,27,0.08);">🍗</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Mang Boy's Grill</div><div class="rest-owner">Owner: Roberto Cañada</div></div>
+            <div class="online-badge badge-online">● Online</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">48</div><div class="r-meta-label">Orders Today</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">₱8,240</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val" style="color:var(--yellow);">⭐4.9</div><div class="r-meta-label">Rating</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn">View Menu</button>
+            <button class="r-btn orange">Edit</button>
+            <button class="r-btn danger">Suspend</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rest-card">
+        <div class="rest-banner" style="background:rgba(46,204,113,0.06);">🍜</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Aling Nena's</div><div class="rest-owner">Owner: Nenita Flores</div></div>
+            <div class="online-badge badge-online">● Online</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">36</div><div class="r-meta-label">Orders Today</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">₱5,920</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val" style="color:var(--yellow);">⭐4.8</div><div class="r-meta-label">Rating</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn">View Menu</button>
+            <button class="r-btn orange">Edit</button>
+            <button class="r-btn danger">Suspend</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rest-card">
+        <div class="rest-banner" style="background:rgba(46,204,113,0.06);">🥗</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Cordova Kusina</div><div class="rest-owner">Owner: Lita Mangubat</div></div>
+            <div class="online-badge badge-online">● Online</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">29</div><div class="r-meta-label">Orders Today</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">₱4,510</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val" style="color:var(--yellow);">⭐4.7</div><div class="r-meta-label">Rating</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn">View Menu</button>
+            <button class="r-btn orange">Edit</button>
+            <button class="r-btn danger">Suspend</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rest-card">
+        <div class="rest-banner" style="background:rgba(244,107,27,0.05);">🍱</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Bayside Bites</div><div class="rest-owner">Owner: Ramon Largo</div></div>
+            <div class="online-badge badge-online">● Online</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">22</div><div class="r-meta-label">Orders Today</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">₱3,960</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val" style="color:var(--yellow);">⭐4.8</div><div class="r-meta-label">Rating</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn">View Menu</button>
+            <button class="r-btn orange">Edit</button>
+            <button class="r-btn danger">Suspend</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rest-card" style="opacity:0.7;">
+        <div class="rest-banner" style="background:rgba(139,165,187,0.06);">🧃</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Merienda Corner</div><div class="rest-owner">Owner: Celia Torres</div></div>
+            <div class="online-badge badge-offline">○ Offline</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">0</div><div class="r-meta-label">Orders Today</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">₱0</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val" style="color:var(--yellow);">⭐4.6</div><div class="r-meta-label">Rating</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn">View Menu</button>
+            <button class="r-btn orange">Edit</button>
+            <button class="r-btn">Contact</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Approval -->
+      <div class="rest-card" style="border-color:rgba(241,196,15,0.25);">
+        <div class="rest-banner" style="background:rgba(241,196,15,0.06);">🥘</div>
+        <div class="rest-body">
+          <div class="rest-top">
+            <div><div class="rest-name">Lutong Bahay ni Nay</div><div class="rest-owner">Owner: Norma Dela Paz</div></div>
+            <div class="online-badge badge-pending">⏳ Pending</div>
+          </div>
+          <div class="rest-meta">
+            <div class="r-meta-item"><div class="r-meta-val">—</div><div class="r-meta-label">Orders</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">—</div><div class="r-meta-label">Revenue</div></div>
+            <div class="r-meta-item"><div class="r-meta-val">New</div><div class="r-meta-label">Status</div></div>
+          </div>
+          <div class="rest-actions">
+            <button class="r-btn orange" style="background:rgba(46,204,113,0.12);border-color:rgba(46,204,113,0.2);color:var(--green);">✓ Approve</button>
+            <button class="r-btn danger">✗ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU ITEMS TABLE -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Menu Items</div>
+        <button class="card-action" style="background:var(--orange);color:white;border:none;padding:0.4rem 0.875rem;border-radius:10px;cursor:pointer;font-size:0.8rem;font-weight:600;">+ Add Item</button>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Restaurant</th><th>Category</th><th>Price</th><th>Orders</th><th>Available</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:0.625rem;"><span style="font-size:1.4rem;">🍗</span><span style="font-weight:600;">Chicken Inasal</span></div></td>
+            <td>Mang Boy's Grill</td>
+            <td><span class="item-pill">🍗 Chicken</span></td>
+            <td style="font-weight:700;color:var(--orange);">₱85</td>
+            <td>48</td>
+            <td><div class="avail-toggle"><div class="toggle-track on"><div class="toggle-thumb"></div></div><span style="font-size:0.78rem;color:var(--green);">On</span></div></td>
+            <td><button class="action-btn">Edit</button><button class="action-btn">Remove</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:0.625rem;"><span style="font-size:1.4rem;">🍜</span><span style="font-weight:600;">Lomi Special</span></div></td>
+            <td>Aling Nena's</td>
+            <td><span class="item-pill">🍜 Soup</span></td>
+            <td style="font-weight:700;color:var(--orange);">₱70</td>
+            <td>36</td>
+            <td><div class="avail-toggle"><div class="toggle-track on"><div class="toggle-thumb"></div></div><span style="font-size:0.78rem;color:var(--green);">On</span></div></td>
+            <td><button class="action-btn">Edit</button><button class="action-btn">Remove</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:0.625rem;"><span style="font-size:1.4rem;">🥗</span><span style="font-weight:600;">Pinakbet Bowl</span></div></td>
+            <td>Cordova Kusina</td>
+            <td><span class="item-pill">🥗 Veggies</span></td>
+            <td style="font-weight:700;color:var(--orange);">₱65</td>
+            <td>22</td>
+            <td><div class="avail-toggle"><div class="toggle-track off"><div class="toggle-thumb"></div></div><span style="font-size:0.78rem;color:var(--text-muted);">Off</span></div></td>
+            <td><button class="action-btn">Edit</button><button class="action-btn">Remove</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:0.625rem;"><span style="font-size:1.4rem;">🍱</span><span style="font-weight:600;">Sinugba Rice Meal</span></div></td>
+            <td>Bayside Bites</td>
+            <td><span class="item-pill">🍱 Rice</span></td>
+            <td style="font-weight:700;color:var(--orange);">₱95</td>
+            <td>19</td>
+            <td><div class="avail-toggle"><div class="toggle-track on"><div class="toggle-thumb"></div></div><span style="font-size:0.78rem;color:var(--green);">On</span></div></td>
+            <td><button class="action-btn">Edit</button><button class="action-btn">Remove</button></td>
+          </tr>
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:0.625rem;"><span style="font-size:1.4rem;">🍢</span><span style="font-weight:600;">Pork BBQ Stick</span></div></td>
+            <td>Mang Boy's Grill</td>
+            <td><span class="item-pill">🍢 Snacks</span></td>
+            <td style="font-weight:700;color:var(--orange);">₱30</td>
+            <td>55</td>
+            <td><div class="avail-toggle"><div class="toggle-track on"><div class="toggle-thumb"></div></div><span style="font-size:0.78rem;color:var(--green);">On</span></div></td>
+            <td><button class="action-btn">Edit</button><button class="action-btn">Remove</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

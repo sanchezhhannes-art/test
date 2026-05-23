@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Announcements</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a; --navy-mid:#1a2d42; --navy-card:#162235;
+    --orange:#f46b1b; --orange-light:#ff8c42;
+    --green:#2ecc71; --red:#e74c3c; --yellow:#f1c40f; --blue:#3498db;
+    --text-main:#f5f0e8; --text-muted:#8fa5bb;
+    --border:rgba(255,255,255,0.08); --card-bg:#162235;
+    --pill-bg:rgba(244,107,27,0.12); --sidebar-w:240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text-main); min-height:100vh; display:flex; }
+  h1,h2,h3,h4 { font-family:'Syne',sans-serif; }
+
+  /* SIDEBAR */
+  .sidebar { width:var(--sidebar-w); background:var(--navy-card); border-right:1px solid var(--border); min-height:100vh; display:flex; flex-direction:column; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.5rem 1.25rem; border-bottom:1px solid var(--border); }
+  .sidebar-logo .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; }
+  .sidebar-logo .logo span { color:var(--orange); }
+  .sidebar-logo .admin-tag { font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+  .sidebar-nav { flex:1; padding:1.25rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem; }
+  .nav-section-label { font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:0.75rem 0.75rem 0.4rem; }
+  .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.875rem; border-radius:12px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.18s; }
+  .nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav-item.active { background:var(--pill-bg); color:var(--orange); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-item .badge { margin-left:auto; background:var(--orange); color:white; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:8px; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+  .admin-avatar { width:34px; height:34px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; border:1px solid rgba(244,107,27,0.3); }
+
+  /* MAIN */
+  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+  .topbar { background:rgba(13,27,42,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+  .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+  .notif-btn { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:0.4rem 0.6rem; cursor:pointer; font-size:1rem; position:relative; }
+  .notif-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; background:var(--orange); border-radius:50%; }
+
+  .content { padding:2rem; flex:1; }
+  .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.75rem; }
+  .page-header h2 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  .page-header p { color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem; }
+
+  /* LAYOUT */
+  .two-col { display:grid; grid-template-columns:1fr 380px; gap:1.5rem; align-items:start; }
+
+  /* COMPOSE CARD */
+  .compose-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; margin-bottom:1.5rem; }
+  .compose-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .compose-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .compose-body { padding:1.5rem; }
+
+  .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+  .form-group { margin-bottom:1rem; }
+  .form-group:last-child { margin-bottom:0; }
+  .form-label { display:block; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem; }
+  .form-input, .form-select, .form-textarea {
+    width:100%; background:var(--navy-mid); border:1px solid var(--border);
+    border-radius:12px; padding:0.75rem 1rem; color:var(--text-main);
+    font-family:'DM Sans',sans-serif; font-size:0.875rem; outline:none;
+    transition:border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:rgba(244,107,27,0.4); }
+  .form-input::placeholder, .form-textarea::placeholder { color:var(--text-muted); }
+  .form-select { appearance:none; cursor:pointer; }
+  .form-select option { background:var(--navy-mid); }
+  .form-textarea { resize:vertical; min-height:100px; line-height:1.6; }
+
+  /* Target audience chips */
+  .audience-chips { display:flex; gap:0.5rem; flex-wrap:wrap; }
+  .chip {
+    padding:0.375rem 0.875rem; border-radius:20px; border:1px solid var(--border);
+    background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif;
+    font-size:0.8rem; font-weight:500; cursor:pointer; transition:all 0.18s;
+  }
+  .chip.selected { background:var(--pill-bg); border-color:rgba(244,107,27,0.3); color:var(--orange); }
+  .chip:hover { border-color:rgba(244,107,27,0.2); }
+
+  /* Type select with color */
+  .type-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:0.625rem; }
+  .type-opt {
+    border:1px solid var(--border); border-radius:12px; padding:0.625rem 0.5rem;
+    text-align:center; cursor:pointer; transition:all 0.18s; background:transparent;
+    font-family:'DM Sans',sans-serif;
+  }
+  .type-opt .t-icon { font-size:1.25rem; margin-bottom:0.25rem; }
+  .type-opt .t-label { font-size:0.7rem; color:var(--text-muted); }
+  .type-opt.selected { border-color:rgba(244,107,27,0.35); background:var(--pill-bg); }
+  .type-opt.selected .t-label { color:var(--orange); }
+
+  .compose-footer { padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; gap:0.75rem; justify-content:flex-end; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:500; cursor:pointer; }
+  .btn-primary { background:var(--orange); color:white; border:none; padding:0.6rem 1.5rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:600; cursor:pointer; }
+  .btn-primary:hover { background:var(--orange-light); }
+
+  /* ANNOUNCEMENTS LIST */
+  .ann-list { display:flex; flex-direction:column; gap:1rem; }
+  .ann-card {
+    background:var(--card-bg); border:1px solid var(--border);
+    border-radius:18px; padding:1.25rem 1.5rem;
+    border-left:4px solid transparent; transition:border-color 0.2s;
+  }
+  .ann-card.info { border-left-color:var(--blue); }
+  .ann-card.promo { border-left-color:var(--orange); }
+  .ann-card.alert { border-left-color:var(--red); }
+  .ann-card.update { border-left-color:var(--green); }
+  .ann-card.holiday { border-left-color:var(--yellow); }
+  .ann-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.625rem; gap:1rem; }
+  .ann-badges { display:flex; gap:0.5rem; flex-wrap:wrap; flex-shrink:0; }
+  .ann-type { font-size:0.68rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:6px; text-transform:uppercase; letter-spacing:0.06em; }
+  .type-info { background:rgba(52,152,219,0.15); color:var(--blue); }
+  .type-promo { background:var(--pill-bg); color:var(--orange); }
+  .type-alert { background:rgba(231,76,60,0.12); color:var(--red); }
+  .type-update { background:rgba(46,204,113,0.12); color:var(--green); }
+  .type-holiday { background:rgba(241,196,15,0.12); color:var(--yellow); }
+  .audience-tag { font-size:0.68rem; font-weight:600; padding:0.2rem 0.5rem; border-radius:6px; background:rgba(255,255,255,0.07); color:var(--text-muted); }
+  .ann-title { font-family:'Syne',sans-serif; font-size:0.975rem; font-weight:700; margin-bottom:0.4rem; }
+  .ann-body { font-size:0.85rem; color:var(--text-muted); line-height:1.6; margin-bottom:0.875rem; }
+  .ann-footer { display:flex; align-items:center; justify-content:space-between; }
+  .ann-meta { font-size:0.72rem; color:var(--text-muted); display:flex; align-items:center; gap:1rem; }
+  .ann-actions { display:flex; gap:0.5rem; }
+  .ann-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.72rem; padding:0.25rem 0.6rem; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+  .ann-btn:hover { border-color:var(--orange); color:var(--orange); }
+  .ann-btn.danger:hover { border-color:var(--red); color:var(--red); }
+  .status-dot-live { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.72rem; color:var(--green); font-weight:600; }
+  .status-dot-live::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block; animation:blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .status-scheduled { font-size:0.72rem; color:var(--yellow); font-weight:600; }
+  .status-expired { font-size:0.72rem; color:var(--text-muted); }
+
+  /* STATS SIDEBAR */
+  .stat-mini { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.5rem; margin-bottom:1.25rem; }
+  .stat-mini-title { font-family:'Syne',sans-serif; font-size:0.9rem; font-weight:700; margin-bottom:1.25rem; }
+  .sm-row { display:flex; align-items:center; justify-content:space-between; padding:0.625rem 0; border-bottom:1px solid var(--border); }
+  .sm-row:last-child { border-bottom:none; }
+  .sm-label { font-size:0.82rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem; }
+  .sm-val { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; }
+
+  /* Toast */
+  .toast { position:fixed; bottom:2rem; right:2rem; z-index:9999; background:var(--card-bg); border:1px solid rgba(46,204,113,0.4); color:var(--text-main); padding:0.875rem 1.25rem; border-radius:14px; font-size:0.875rem; display:flex; align-items:center; gap:0.6rem; transform:translateY(120%); transition:transform 0.35s ease; box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+  .toast.show { transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Cordova <span>Eats</span></div>
+    <div class="admin-tag">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="05_admin_dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="06_admin_orders.html"><span class="icon">📋</span> Orders <span class="badge">12</span></a>
+    <a class="nav-item" href="07_admin_riders.html"><span class="icon">🛵</span> Riders</a>
+    <a class="nav-item" href="08_admin_restaurants.html"><span class="icon">🏪</span> Restaurants</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="#"><span class="icon">👥</span> Customers</a>
+    <a class="nav-item" href="09_admin_revenue.html"><span class="icon">💰</span> Revenue</a>
+    <a class="nav-item active" href="10_admin_announcements.html"><span class="icon">📣</span> Announcements</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span> Settings</a>
+    <a class="nav-item" href="01_home.html"><span class="icon">↗️</span> Customer View</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-avatar">👨‍💼</div>
+    <div><div style="font-size:0.82rem;font-weight:600;">Admin Cordova</div><div style="font-size:0.7rem;color:var(--text-muted);">Super Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Announcements</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="color:var(--text-muted);font-size:0.8rem;">May 20, 2026</span>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div><h2>Announcements</h2><p>Create and manage messages sent to customers, riders, and restaurants.</p></div>
+    </div>
+
+    <div class="two-col">
+      <!-- LEFT: Compose + List -->
+      <div>
+        <!-- COMPOSE -->
+        <div class="compose-card">
+          <div class="compose-header">
+            <div class="compose-title">✏️ New Announcement</div>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Visible on customer app + in-app notifications</span>
+          </div>
+          <div class="compose-body">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-input" id="annTitle" placeholder="e.g. Service Update, New Promo...">
+            </div>
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Type</label>
+                <div class="type-grid" id="typeGrid">
+                  <div class="type-opt selected" onclick="selectType(this,'promo')"><div class="t-icon">🎉</div><div class="t-label">Promo</div></div>
+                  <div class="type-opt" onclick="selectType(this,'info')"><div class="t-icon">ℹ️</div><div class="t-label">Info</div></div>
+                  <div class="type-opt" onclick="selectType(this,'alert')"><div class="t-icon">⚠️</div><div class="t-label">Alert</div></div>
+                  <div class="type-opt" onclick="selectType(this,'update')"><div class="t-icon">🔄</div><div class="t-label">Update</div></div>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Schedule</label>
+                <input type="datetime-local" class="form-input" style="color-scheme:dark;">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top:1rem;">
+              <label class="form-label">Message</label>
+              <textarea class="form-textarea" id="annMessage" placeholder="Write your announcement message here..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Send To</label>
+              <div class="audience-chips" id="audienceChips">
+                <div class="chip selected" onclick="toggleChip(this)">👥 All Customers</div>
+                <div class="chip" onclick="toggleChip(this)">🛵 Riders</div>
+                <div class="chip" onclick="toggleChip(this)">🏪 Restaurants</div>
+                <div class="chip" onclick="toggleChip(this)">🆕 New Users</div>
+              </div>
+            </div>
+          </div>
+          <div class="compose-footer">
+            <button class="btn-ghost" onclick="clearForm()">Clear</button>
+            <button class="btn-ghost">Save as Draft</button>
+            <button class="btn-primary" onclick="publishAnnouncement()">📣 Publish Now</button>
+          </div>
+        </div>
+
+        <!-- EXISTING LIST -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h3 style="font-size:1rem;font-weight:700;">Published Announcements</h3>
+          <span style="font-size:0.78rem;color:var(--text-muted);">6 total</span>
+        </div>
+        <div class="ann-list" id="annList">
+
+          <div class="ann-card promo">
+            <div class="ann-top">
+              <div>
+                <div class="ann-title">🎉 Free Delivery Weekend!</div>
+                <div class="ann-body">This Saturday and Sunday, enjoy FREE delivery on all orders over ₱100. Support your local restaurants and save on fees — this weekend only!</div>
+              </div>
+              <div class="ann-badges">
+                <span class="ann-type type-promo">Promo</span>
+                <span class="audience-tag">All Customers</span>
+              </div>
+            </div>
+            <div class="ann-footer">
+              <div class="ann-meta"><span class="status-dot-live">Live</span><span>Posted May 19 · 2,840 views</span></div>
+              <div class="ann-actions"><button class="ann-btn">Edit</button><button class="ann-btn danger">Delete</button></div>
+            </div>
+          </div>
+
+          <div class="ann-card alert">
+            <div class="ann-top">
+              <div>
+                <div class="ann-title">⚠️ Temporary Service Slowdown — Brgy. Gabi</div>
+                <div class="ann-body">Due to road works on the main highway near Brgy. Gabi, deliveries to that area may take 5–10 minutes longer than usual. We apologize for any inconvenience.</div>
+              </div>
+              <div class="ann-badges">
+                <span class="ann-type type-alert">Alert</span>
+                <span class="audience-tag">All Customers</span>
+              </div>
+            </div>
+            <div class="ann-footer">
+              <div class="ann-meta"><span class="status-dot-live">Live</span><span>Posted May 20 · 1,120 views</span></div>
+              <div class="ann-actions"><button class="ann-btn">Edit</button><button class="ann-btn danger">Delete</button></div>
+            </div>
+          </div>
+
+          <div class="ann-card update">
+            <div class="ann-top">
+              <div>
+                <div class="ann-title">🔄 App Update: Real-Time Tracking Improved</div>
+                <div class="ann-body">We've upgraded our order tracking to show your rider's live location with greater accuracy. Refresh the app to get the latest version.</div>
+              </div>
+              <div class="ann-badges">
+                <span class="ann-type type-update">Update</span>
+                <span class="audience-tag">All Customers</span>
+              </div>
+            </div>
+            <div class="ann-footer">
+              <div class="ann-meta"><span class="status-scheduled">⏳ Scheduled · May 22, 9:00 AM</span></div>
+              <div class="ann-actions"><button class="ann-btn">Edit</button><button class="ann-btn danger">Delete</button></div>
+            </div>
+          </div>
+
+          <div class="ann-card info">
+            <div class="ann-top">
+              <div>
+                <div class="ann-title">ℹ️ New Restaurant Partner: Lutong Bahay ni Nay</div>
+                <div class="ann-body">We're excited to welcome Lutong Bahay ni Nay to our platform! Enjoy authentic home-cooked Filipino meals delivered straight from Brgy. Buagsong.</div>
+              </div>
+              <div class="ann-badges">
+                <span class="ann-type type-info">Info</span>
+                <span class="audience-tag">All Customers</span>
+              </div>
+            </div>
+            <div class="ann-footer">
+              <div class="ann-meta"><span class="status-expired">Expired · May 10</span><span>3,410 views</span></div>
+              <div class="ann-actions"><button class="ann-btn">Edit</button><button class="ann-btn danger">Delete</button></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Stats -->
+      <div>
+        <div class="stat-mini">
+          <div class="stat-mini-title">📊 Overview</div>
+          <div class="sm-row"><span class="sm-label">🟢 Live Now</span><span class="sm-val" style="color:var(--green);">2</span></div>
+          <div class="sm-row"><span class="sm-label">⏳ Scheduled</span><span class="sm-val" style="color:var(--yellow);">1</span></div>
+          <div class="sm-row"><span class="sm-label">📁 Drafts</span><span class="sm-val">3</span></div>
+          <div class="sm-row"><span class="sm-label">✅ Total Published</span><span class="sm-val">24</span></div>
+          <div class="sm-row"><span class="sm-label">👁 Total Views</span><span class="sm-val">18,240</span></div>
+        </div>
+
+        <div class="stat-mini">
+          <div class="stat-mini-title">🎯 By Type</div>
+          <div class="sm-row"><span class="sm-label"><span style="color:var(--orange);">●</span> Promos</span><span class="sm-val">8</span></div>
+          <div class="sm-row"><span class="sm-label"><span style="color:var(--blue);">●</span> Info</span><span class="sm-val">7</span></div>
+          <div class="sm-row"><span class="sm-label"><span style="color:var(--red);">●</span> Alerts</span><span class="sm-val">4</span></div>
+          <div class="sm-row"><span class="sm-label"><span style="color:var(--green);">●</span> Updates</span><span class="sm-val">5</span></div>
+        </div>
+
+        <div class="stat-mini">
+          <div class="stat-mini-title">💡 Tips</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.7;">
+            • Post promos on <strong style="color:var(--text-main);">Friday evenings</strong> for best reach.<br><br>
+            • Alerts get <strong style="color:var(--text-main);">3× more opens</strong> than info posts.<br><br>
+            • Schedule announcements at least <strong style="color:var(--text-main);">2 hours</strong> before events.
+          </p>
+        </div>
+
+        <div style="background:var(--pill-bg);border:1px solid rgba(244,107,27,0.2);border-radius:16px;padding:1.25rem;">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;margin-bottom:0.625rem;font-size:0.95rem;">📱 Customer Preview</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.875rem;line-height:1.6;">See how your announcement looks on the customer app.</p>
+          <a href="11_customer_announcements.html" style="display:block;text-align:center;background:var(--orange);color:white;padding:0.625rem;border-radius:10px;font-size:0.825rem;font-weight:600;text-decoration:none;">View Customer Side →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span style="color:#2ecc71;">✅</span>
+  <span id="toastMsg">Announcement published!</span>
+</div>
+
+<script>
+let selectedType = 'promo';
+
+function selectType(el, type) {
+  document.querySelectorAll('.type-opt').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+}
+
+function toggleChip(el) {
+  el.classList.toggle('selected');
+}
+
+function clearForm() {
+  document.getElementById('annTitle').value = '';
+  document.getElementById('annMessage').value = '';
+}
+
+function publishAnnouncement() {
+  const title = document.getElementById('annTitle').value.trim();
+  const message = document.getElementById('annMessage').value.trim();
+  if (!title || !message) {
+    showToast('⚠️ Please fill in title and message.');
+    return;
+  }
+
+  const typeMap = { promo:'type-promo promo', info:'type-info info', alert:'type-alert alert', update:'type-update update' };
+  const typeLabel = { promo:'Promo', info:'Info', alert:'Alert', update:'Update' };
+  const typeEmoji = { promo:'🎉', info:'ℹ️', alert:'⚠️', update:'🔄' };
+
+  const newCard = document.createElement('div');
+  newCard.className = `ann-card ${selectedType}`;
+  newCard.innerHTML = `
+    <div class="ann-top">
+      <div>
+        <div class="ann-title">${typeEmoji[selectedType]} ${title}</div>
+        <div class="ann-body">${message}</div>
+      </div>
+      <div class="ann-badges">
+        <span class="ann-type ${typeMap[selectedType].split(' ')[0]}">${typeLabel[selectedType]}</span>
+        <span class="audience-tag">All Customers</span>
+      </div>
+    </div>
+    <div class="ann-footer">
+      <div class="ann-meta"><span class="status-dot-live">Live</span><span>Just now · 0 views</span></div>
+      <div class="ann-actions"><button class="ann-btn">Edit</button><button class="ann-btn danger">Delete</button></div>
+    </div>
+  `;
+  document.getElementById('annList').prepend(newCard);
+  clearForm();
+  showToast('📣 Announcement published successfully!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

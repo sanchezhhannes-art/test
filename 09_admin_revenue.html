@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Revenue</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a; --navy-mid:#1a2d42; --navy-card:#162235;
+    --orange:#f46b1b; --orange-light:#ff8c42;
+    --green:#2ecc71; --red:#e74c3c; --yellow:#f1c40f; --blue:#3498db;
+    --text-main:#f5f0e8; --text-muted:#8fa5bb;
+    --border:rgba(255,255,255,0.08); --card-bg:#162235;
+    --pill-bg:rgba(244,107,27,0.12); --sidebar-w:240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text-main); min-height:100vh; display:flex; }
+  h1,h2,h3,h4 { font-family:'Syne',sans-serif; }
+
+  .sidebar { width:var(--sidebar-w); background:var(--navy-card); border-right:1px solid var(--border); min-height:100vh; display:flex; flex-direction:column; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.5rem 1.25rem; border-bottom:1px solid var(--border); }
+  .sidebar-logo .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; }
+  .sidebar-logo .logo span { color:var(--orange); }
+  .sidebar-logo .admin-tag { font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+  .sidebar-nav { flex:1; padding:1.25rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem; }
+  .nav-section-label { font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:0.75rem 0.75rem 0.4rem; }
+  .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.875rem; border-radius:12px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.18s; }
+  .nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav-item.active { background:var(--pill-bg); color:var(--orange); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-item .badge { margin-left:auto; background:var(--orange); color:white; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:8px; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+  .admin-avatar { width:34px; height:34px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; border:1px solid rgba(244,107,27,0.3); }
+
+  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+  .topbar { background:rgba(13,27,42,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+  .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+  .notif-btn { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:0.4rem 0.6rem; cursor:pointer; font-size:1rem; position:relative; }
+  .notif-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; background:var(--orange); border-radius:50%; }
+
+  .content { padding:2rem; }
+  .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.75rem; }
+  .page-header h2 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  .page-header p { color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem; }
+
+  /* Period selector */
+  .period-tabs { display:flex; gap:0.5rem; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:0.3rem; }
+  .period-tab { padding:0.4rem 1rem; border-radius:8px; border:none; background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:0.825rem; font-weight:500; cursor:pointer; transition:all 0.18s; }
+  .period-tab.active { background:var(--orange); color:white; }
+
+  /* KPI row */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:2rem; }
+  .kpi-card { background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:1.5rem; }
+  .kpi-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem; }
+  .kpi-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .kpi-badge { font-size:0.72rem; font-weight:600; padding:0.25rem 0.6rem; border-radius:8px; }
+  .badge-up { background:rgba(46,204,113,0.15); color:var(--green); }
+  .badge-down { background:rgba(231,76,60,0.12); color:var(--red); }
+  .kpi-val { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.02em; }
+  .kpi-label { font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem; }
+
+  /* Charts row */
+  .charts-row { display:grid; grid-template-columns:1fr 340px; gap:1.5rem; margin-bottom:1.5rem; }
+  .card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .card-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .card-sub { font-size:0.78rem; color:var(--text-muted); }
+
+  /* Bar chart */
+  .bar-chart { padding:1.5rem; }
+  .bar-chart-grid { display:flex; align-items:flex-end; gap:0.75rem; height:160px; margin-bottom:0.875rem; }
+  .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:0.4rem; height:100%; justify-content:flex-end; }
+  .bar-fill-wrap { width:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+  .bar-fill {
+    width:100%; border-radius:6px 6px 0 0;
+    background:linear-gradient(180deg, var(--orange-light), var(--orange));
+    transition:height 0.6s ease; min-height:4px;
+  }
+  .bar-fill.accent { background:linear-gradient(180deg, #5dade2, var(--blue)); }
+  .bar-day { font-size:0.68rem; color:var(--text-muted); }
+  .bar-amount { font-size:0.65rem; color:var(--text-muted); }
+  .chart-legend { display:flex; gap:1.5rem; }
+  .legend-item { display:flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:var(--text-muted); }
+  .legend-dot { width:8px; height:8px; border-radius:50%; }
+
+  /* Donut chart */
+  .donut-wrap { padding:1.5rem; display:flex; flex-direction:column; align-items:center; }
+  .donut-svg { width:160px; height:160px; margin-bottom:1.25rem; }
+  .donut-legend { width:100%; display:flex; flex-direction:column; gap:0.625rem; }
+  .donut-row { display:flex; align-items:center; justify-content:space-between; }
+  .donut-label { display:flex; align-items:center; gap:0.5rem; font-size:0.82rem; }
+  .donut-swatch { width:10px; height:10px; border-radius:3px; }
+  .donut-pct { font-size:0.82rem; font-weight:700; }
+
+  /* Bottom row */
+  .bottom-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+
+  /* Transaction table */
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; padding:0.75rem 1.5rem; text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:0.875rem 1.5rem; font-size:0.875rem; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  .amount-pos { color:var(--green); font-weight:700; }
+  .amount-neg { color:var(--red); font-weight:700; }
+  .txn-type { font-size:0.72rem; font-weight:600; padding:0.2rem 0.5rem; border-radius:6px; }
+  .txn-order { background:var(--pill-bg); color:var(--orange); }
+  .txn-delivery { background:rgba(52,152,219,0.12); color:var(--blue); }
+  .txn-refund { background:rgba(231,76,60,0.12); color:var(--red); }
+
+  /* Top earners */
+  .earner-row { display:flex; align-items:center; gap:0.875rem; padding:0.875rem 1.5rem; border-bottom:1px solid var(--border); }
+  .earner-row:last-child { border-bottom:none; }
+  .earner-rank { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:var(--text-muted); min-width:24px; }
+  .earner-rank.gold { color:var(--yellow); }
+  .earner-icon { font-size:1.5rem; width:36px; text-align:center; }
+  .earner-name { font-weight:600; font-size:0.875rem; }
+  .earner-orders { font-size:0.72rem; color:var(--text-muted); }
+  .earner-rev { margin-left:auto; font-family:'Syne',sans-serif; font-weight:800; font-size:0.95rem; color:var(--orange); }
+  .earner-bar { width:60px; height:4px; background:rgba(255,255,255,0.07); border-radius:2px; margin-left:0.75rem; overflow:hidden; }
+  .earner-bar-fill { height:100%; border-radius:2px; background:var(--orange); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Cordova <span>Eats</span></div>
+    <div class="admin-tag">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="05_admin_dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="06_admin_orders.html"><span class="icon">📋</span> Orders <span class="badge">12</span></a>
+    <a class="nav-item" href="07_admin_riders.html"><span class="icon">🛵</span> Riders</a>
+    <a class="nav-item" href="08_admin_restaurants.html"><span class="icon">🏪</span> Restaurants</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="#"><span class="icon">👥</span> Customers</a>
+    <a class="nav-item active" href="09_admin_revenue.html"><span class="icon">💰</span> Revenue</a>
+    <a class="nav-item" href="10_admin_announcements.html"><span class="icon">📣</span> Announcements</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span> Settings</a>
+    <a class="nav-item" href="01_home.html"><span class="icon">↗️</span> Customer View</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-avatar">👨‍💼</div>
+    <div><div style="font-size:0.82rem;font-weight:600;">Admin Cordova</div><div style="font-size:0.7rem;color:var(--text-muted);">Super Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Revenue & Finance</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="color:var(--text-muted);font-size:0.8rem;">May 20, 2026</span>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div><h2>Revenue Overview</h2><p>Track earnings, delivery fees, and restaurant performance.</p></div>
+      <div class="period-tabs">
+        <button class="period-tab" onclick="setPeriod(this)">Today</button>
+        <button class="period-tab active" onclick="setPeriod(this)">This Week</button>
+        <button class="period-tab" onclick="setPeriod(this)">This Month</button>
+        <button class="period-tab" onclick="setPeriod(this)">All Time</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-top"><div class="kpi-icon" style="background:var(--pill-bg);">💵</div><span class="kpi-badge badge-up">↑ 14%</span></div>
+        <div class="kpi-val">₱148,240</div>
+        <div class="kpi-label">Total Revenue (Week)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(52,152,219,0.12);">🛵</div><span class="kpi-badge badge-up">↑ 8%</span></div>
+        <div class="kpi-val">₱29,580</div>
+        <div class="kpi-label">Delivery Fees Collected</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(46,204,113,0.12);">🏪</div><span class="kpi-badge badge-up">↑ 21%</span></div>
+        <div class="kpi-val">₱118,660</div>
+        <div class="kpi-label">Restaurant Sales</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(231,76,60,0.12);">↩</div><span class="kpi-badge badge-down">↑ 2%</span></div>
+        <div class="kpi-val">₱3,420</div>
+        <div class="kpi-label">Refunds Issued</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Daily Revenue</div>
+            <div class="card-sub">This week vs last week</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange);"></div>This week</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue);"></div>Last week</div>
+          </div>
+        </div>
+        <div class="bar-chart">
+          <div class="bar-chart-grid" id="barChart"></div>
+          <div style="display:flex;justify-content:space-around;">
+            <span style="font-size:0.68rem;color:var(--text-muted);">Mon</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Tue</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Wed</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Thu</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Fri</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Sat</span>
+            <span style="font-size:0.68rem;color:var(--text-muted);">Today</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Revenue by Category</div></div>
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 160 160">
+            <!-- Donut segments (approximate) -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="22"/>
+            <!-- Rice 38% = 238deg -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="#f46b1b" stroke-width="22"
+              stroke-dasharray="131 214" stroke-dashoffset="0" transform="rotate(-90 80 80)"/>
+            <!-- Chicken 24% = 86.4deg -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="#2ecc71" stroke-width="22"
+              stroke-dasharray="83 262" stroke-dashoffset="-131" transform="rotate(-90 80 80)"/>
+            <!-- Soup 18% -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="#3498db" stroke-width="22"
+              stroke-dasharray="62 283" stroke-dashoffset="-214" transform="rotate(-90 80 80)"/>
+            <!-- Other 20% -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="#8fa5bb" stroke-width="22"
+              stroke-dasharray="69 276" stroke-dashoffset="-276" transform="rotate(-90 80 80)"/>
+            <text x="80" y="76" text-anchor="middle" font-family="Syne,sans-serif" font-size="18" font-weight="800" fill="#f5f0e8">38%</text>
+            <text x="80" y="94" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" fill="#8fa5bb">Rice Meals</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="donut-row"><div class="donut-label"><div class="donut-swatch" style="background:var(--orange);"></div>Rice Meals</div><div class="donut-pct">38%</div></div>
+            <div class="donut-row"><div class="donut-label"><div class="donut-swatch" style="background:var(--green);"></div>Chicken</div><div class="donut-pct">24%</div></div>
+            <div class="donut-row"><div class="donut-label"><div class="donut-swatch" style="background:var(--blue);"></div>Soups</div><div class="donut-pct">18%</div></div>
+            <div class="donut-row"><div class="donut-label"><div class="donut-swatch" style="background:var(--text-muted);"></div>Others</div><div class="donut-pct">20%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="bottom-row">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Transactions</div></div>
+        <table>
+          <thead><tr><th>Type</th><th>Description</th><th>Amount</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td><span class="txn-type txn-order">Order</span></td><td>Order #CDV-0201</td><td class="amount-pos">+₱185</td><td style="color:var(--text-muted);font-size:0.8rem;">Today 2:14 PM</td></tr>
+            <tr><td><span class="txn-type txn-delivery">Delivery</span></td><td>Delivery fee #CDV-0200</td><td class="amount-pos">+₱29</td><td style="color:var(--text-muted);font-size:0.8rem;">Today 1:58 PM</td></tr>
+            <tr><td><span class="txn-type txn-order">Order</span></td><td>Order #CDV-0200</td><td class="amount-pos">+₱220</td><td style="color:var(--text-muted);font-size:0.8rem;">Today 1:55 PM</td></tr>
+            <tr><td><span class="txn-type txn-refund">Refund</span></td><td>Cancelled #CDV-0197</td><td class="amount-neg">−₱75</td><td style="color:var(--text-muted);font-size:0.8rem;">Today 1:40 PM</td></tr>
+            <tr><td><span class="txn-type txn-order">Order</span></td><td>Order #CDV-0196</td><td class="amount-pos">+₱310</td><td style="color:var(--text-muted);font-size:0.8rem;">Today 1:22 PM</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Top Earners This Week</div></div>
+        <div class="earner-row"><div class="earner-rank gold">01</div><div class="earner-icon">🍗</div><div><div class="earner-name">Mang Boy's Grill</div><div class="earner-orders">284 orders</div></div><div class="earner-rev">₱48,240</div><div class="earner-bar"><div class="earner-bar-fill" style="width:100%;"></div></div></div>
+        <div class="earner-row"><div class="earner-rank">02</div><div class="earner-icon">🍜</div><div><div class="earner-name">Aling Nena's</div><div class="earner-orders">221 orders</div></div><div class="earner-rev">₱36,920</div><div class="earner-bar"><div class="earner-bar-fill" style="width:77%;"></div></div></div>
+        <div class="earner-row"><div class="earner-rank">03</div><div class="earner-icon">🥗</div><div><div class="earner-name">Cordova Kusina</div><div class="earner-orders">178 orders</div></div><div class="earner-rev">₱24,510</div><div class="earner-bar"><div class="earner-bar-fill" style="width:51%;"></div></div></div>
+        <div class="earner-row"><div class="earner-rank">04</div><div class="earner-icon">🍱</div><div><div class="earner-name">Bayside Bites</div><div class="earner-orders">143 orders</div></div><div class="earner-rev">₱18,960</div><div class="earner-bar"><div class="earner-bar-fill" style="width:39%;"></div></div></div>
+        <div class="earner-row"><div class="earner-rank">05</div><div class="earner-icon">🧃</div><div><div class="earner-name">Merienda Corner</div><div class="earner-orders">96 orders</div></div><div class="earner-rev">₱9,030</div><div class="earner-bar"><div class="earner-bar-fill" style="width:19%;"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Build bar chart
+const thisWeek = [18400, 22100, 19800, 24600, 28900, 31200, 24360];
+const lastWeek = [15200, 19400, 21100, 20800, 25200, 28700, 21400];
+const maxVal = Math.max(...thisWeek, ...lastWeek);
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Today'];
+const chart = document.getElementById('barChart');
+chart.innerHTML = days.map((d,i) => `
+  <div style="flex:1;display:flex;gap:3px;align-items:flex-end;height:100%;">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
+      <div class="bar-fill" style="height:${(thisWeek[i]/maxVal)*100}%;border-radius:4px 4px 0 0;"></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
+      <div class="bar-fill accent" style="height:${(lastWeek[i]/maxVal)*100}%;border-radius:4px 4px 0 0;opacity:0.5;"></div>
+    </div>
+  </div>
+`).join('');
+
+function setPeriod(btn) {
+  document.querySelectorAll('.period-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Riders</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1b2a; --navy-mid:#1a2d42; --navy-card:#162235;
+    --orange:#f46b1b; --green:#2ecc71; --red:#e74c3c; --yellow:#f1c40f;
+    --text-main:#f5f0e8; --text-muted:#8fa5bb;
+    --border:rgba(255,255,255,0.08); --card-bg:#162235;
+    --pill-bg:rgba(244,107,27,0.12); --sidebar-w:240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text-main); min-height:100vh; display:flex; }
+  h1,h2,h3 { font-family:'Syne',sans-serif; }
+
+  .sidebar { width:var(--sidebar-w); background:var(--navy-card); border-right:1px solid var(--border); min-height:100vh; display:flex; flex-direction:column; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.5rem 1.25rem; border-bottom:1px solid var(--border); }
+  .sidebar-logo .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; }
+  .sidebar-logo .logo span { color:var(--orange); }
+  .sidebar-logo .admin-tag { font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+  .sidebar-nav { flex:1; padding:1.25rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem; }
+  .nav-section-label { font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:0.75rem 0.75rem 0.4rem; }
+  .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.875rem; border-radius:12px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; cursor:pointer; }
+  .nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav-item.active { background:var(--pill-bg); color:var(--orange); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-item .badge { margin-left:auto; background:var(--orange); color:white; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:8px; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+  .admin-avatar { width:34px; height:34px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; border:1px solid rgba(244,107,27,0.3); }
+
+  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+  .topbar { background:rgba(13,27,42,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+  .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+  .notif-btn { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:0.4rem 0.6rem; cursor:pointer; font-size:1rem; position:relative; }
+  .notif-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; background:var(--orange); border-radius:50%; }
+
+  .content { padding:2rem; }
+  .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.5rem; }
+  .page-header h2 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  .page-header p { color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem; }
+  .btn-primary { background:var(--orange); color:white; border:none; padding:0.625rem 1.25rem; border-radius:12px; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.875rem; cursor:pointer; }
+
+  /* STATS */
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .stat-card { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.25rem; display:flex; align-items:center; gap:1rem; }
+  .stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; }
+  .stat-label { font-size:0.75rem; color:var(--text-muted); }
+
+  /* RIDER GRID */
+  .riders-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; margin-bottom:1.5rem; }
+  .rider-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:1.5rem; }
+  .rider-card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.25rem; }
+  .rider-avatar-lg { width:52px; height:52px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:2px solid rgba(244,107,27,0.2); }
+  .status-dot { display:flex; align-items:center; gap:0.35rem; font-size:0.75rem; font-weight:600; padding:0.3rem 0.7rem; border-radius:10px; }
+  .dot-available { background:rgba(46,204,113,0.15); color:var(--green); }
+  .dot-busy { background:var(--pill-bg); color:var(--orange); }
+  .dot-offline { background:rgba(139,165,187,0.1); color:var(--text-muted); }
+  .dot { width:7px; height:7px; border-radius:50%; }
+  .dot.g { background:var(--green); }
+  .dot.o { background:var(--orange); }
+  .dot.m { background:var(--text-muted); }
+  .rider-name-lg { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; margin-bottom:0.15rem; }
+  .rider-vehicle { font-size:0.78rem; color:var(--text-muted); margin-bottom:0.875rem; }
+  .rider-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:1rem; }
+  .r-stat { background:rgba(255,255,255,0.04); border-radius:10px; padding:0.6rem 0.5rem; text-align:center; }
+  .r-stat .rv { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  .r-stat .rl { font-size:0.65rem; color:var(--text-muted); margin-top:0.1rem; }
+  .rider-actions { display:flex; gap:0.5rem; }
+  .r-action-btn { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500; padding:0.5rem; border-radius:10px; cursor:pointer; }
+  .r-action-btn.primary { background:var(--pill-bg); border-color:rgba(244,107,27,0.2); color:var(--orange); }
+
+  /* CURRENT DELIVERIES TABLE */
+  .card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .card-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; padding:0.75rem 1.5rem; text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:0.875rem 1.5rem; font-size:0.875rem; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  .status-pill { font-size:0.72rem; font-weight:600; padding:0.25rem 0.625rem; border-radius:8px; display:inline-block; }
+  .s-delivered { background:rgba(46,204,113,0.15); color:var(--green); }
+  .s-transit { background:var(--pill-bg); color:var(--orange); }
+  .star { color:var(--yellow); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Cordova <span>Eats</span></div>
+    <div class="admin-tag">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="05_admin_dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item" href="06_admin_orders.html"><span class="icon">📋</span> Orders <span class="badge">12</span></a>
+    <a class="nav-item active" href="07_admin_riders.html"><span class="icon">🛵</span> Riders</a>
+    <a class="nav-item" href="08_admin_restaurants.html"><span class="icon">🏪</span> Restaurants</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="#"><span class="icon">👥</span> Customers</a>
+    <a class="nav-item" href="09_admin_revenue.html"><span class="icon">💰</span> Revenue</a>
+    <a class="nav-item" href="10_admin_announcements.html"><span class="icon">📣</span> Announcements</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span> Settings</a>
+    <a class="nav-item" href="01_home.html"><span class="icon">↗️</span> Customer View</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-avatar">👨‍💼</div>
+    <div><div style="font-size:0.82rem;font-weight:600;">Admin Cordova</div><div style="font-size:0.7rem;color:var(--text-muted);">Super Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Riders Management</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="color:var(--text-muted);font-size:0.8rem;">May 20, 2026</span>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div><h2>Riders</h2><p>Manage your delivery rider fleet and monitor performance.</p></div>
+      <button class="btn-primary">+ Add New Rider</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(46,204,113,0.12);">✅</div><div><div class="stat-val">5</div><div class="stat-label">Available Now</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--pill-bg);">🛵</div><div><div class="stat-val">4</div><div class="stat-label">On Delivery</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(139,165,187,0.12);">💤</div><div><div class="stat-val">2</div><div class="stat-label">Offline</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(241,196,15,0.12);">📦</div><div><div class="stat-val">57</div><div class="stat-label">Deliveries Today</div></div></div>
+    </div>
+
+    <div class="riders-grid">
+
+      <div class="rider-card">
+        <div class="rider-card-top">
+          <div><div class="rider-avatar-lg">🧑</div></div>
+          <div class="status-dot dot-busy"><div class="dot o"></div> On Delivery</div>
+        </div>
+        <div class="rider-name-lg">Kuya Renz</div>
+        <div class="rider-vehicle">🏍 Honda Click 125 · CDV-001</div>
+        <div class="rider-stats">
+          <div class="r-stat"><div class="rv">12</div><div class="rl">Today</div></div>
+          <div class="r-stat"><div class="rv">248</div><div class="rl">Total</div></div>
+          <div class="r-stat"><div class="rv" style="color:var(--yellow);">⭐ 4.9</div><div class="rl">Rating</div></div>
+        </div>
+        <div class="rider-actions">
+          <button class="r-action-btn">📞 Call</button>
+          <button class="r-action-btn">📍 Track</button>
+          <button class="r-action-btn primary">View Orders</button>
+        </div>
+      </div>
+
+      <div class="rider-card">
+        <div class="rider-card-top">
+          <div><div class="rider-avatar-lg">👦</div></div>
+          <div class="status-dot dot-available"><div class="dot g"></div> Available</div>
+        </div>
+        <div class="rider-name-lg">Mark Bato</div>
+        <div class="rider-vehicle">🏍 Yamaha Mio i125 · CDV-002</div>
+        <div class="rider-stats">
+          <div class="r-stat"><div class="rv">9</div><div class="rl">Today</div></div>
+          <div class="r-stat"><div class="rv">195</div><div class="rl">Total</div></div>
+          <div class="r-stat"><div class="rv" style="color:var(--yellow);">⭐ 4.8</div><div class="rl">Rating</div></div>
+        </div>
+        <div class="rider-actions">
+          <button class="r-action-btn">📞 Call</button>
+          <button class="r-action-btn">📍 Track</button>
+          <button class="r-action-btn primary">Assign Order</button>
+        </div>
+      </div>
+
+      <div class="rider-card">
+        <div class="rider-card-top">
+          <div><div class="rider-avatar-lg">🧔</div></div>
+          <div class="status-dot dot-busy"><div class="dot o"></div> On Delivery</div>
+        </div>
+        <div class="rider-name-lg">Dong Padilla</div>
+        <div class="rider-vehicle">🏍 Honda Beat · CDV-003</div>
+        <div class="rider-stats">
+          <div class="r-stat"><div class="rv">7</div><div class="rl">Today</div></div>
+          <div class="r-stat"><div class="rv">132</div><div class="rl">Total</div></div>
+          <div class="r-stat"><div class="rv" style="color:var(--yellow);">⭐ 4.7</div><div class="rl">Rating</div></div>
+        </div>
+        <div class="rider-actions">
+          <button class="r-action-btn">📞 Call</button>
+          <button class="r-action-btn">📍 Track</button>
+          <button class="r-action-btn primary">View Orders</button>
+        </div>
+      </div>
+
+      <div class="rider-card" style="opacity:0.75;">
+        <div class="rider-card-top">
+          <div><div class="rider-avatar-lg">👱</div></div>
+          <div class="status-dot dot-offline"><div class="dot m"></div> Offline</div>
+        </div>
+        <div class="rider-name-lg">Nico Abella</div>
+        <div class="rider-vehicle">🏍 Suzuki Skydrive · CDV-004</div>
+        <div class="rider-stats">
+          <div class="r-stat"><div class="rv">0</div><div class="rl">Today</div></div>
+          <div class="r-stat"><div class="rv">89</div><div class="rl">Total</div></div>
+          <div class="r-stat"><div class="rv" style="color:var(--yellow);">⭐ 4.6</div><div class="rl">Rating</div></div>
+        </div>
+        <div class="rider-actions">
+          <button class="r-action-btn">📞 Call</button>
+          <button class="r-action-btn" style="opacity:0.5;cursor:default;">📍 Track</button>
+          <button class="r-action-btn">View Profile</button>
+        </div>
+      </div>
+
+      <div class="rider-card">
+        <div class="rider-card-top">
+          <div><div class="rider-avatar-lg">👩</div></div>
+          <div class="status-dot dot-available"><div class="dot g"></div> Available</div>
+        </div>
+        <div class="rider-name-lg">Joy Mercado</div>
+        <div class="rider-vehicle">🛵 Yamaha NMAX · CDV-005</div>
+        <div class="rider-stats">
+          <div class="r-stat"><div class="rv">14</div><div class="rl">Today</div></div>
+          <div class="r-stat"><div class="rv">310</div><div class="rl">Total</div></div>
+          <div class="r-stat"><div class="rv" style="color:var(--yellow);">⭐ 5.0</div><div class="rl">Rating</div></div>
+        </div>
+        <div class="rider-actions">
+          <button class="r-action-btn">📞 Call</button>
+          <button class="r-action-btn">📍 Track</button>
+          <button class="r-action-btn primary">Assign Order</button>
+        </div>
+      </div>
+
+      <!-- Add Rider Card -->
+      <div class="rider-card" style="border:2px dashed rgba(244,107,27,0.2);background:rgba(244,107,27,0.03);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.75rem;cursor:pointer;min-height:220px;">
+        <div style="width:48px;height:48px;background:var(--pill-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">+</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;">Add New Rider</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Register a delivery partner</div>
+      </div>
+    </div>
+
+    <!-- DELIVERY LOG -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Today's Delivery Log</div>
+        <span style="font-size:0.78rem;color:var(--text-muted);">57 deliveries completed</span>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Order ID</th><th>Rider</th><th>Pickup From</th><th>Delivered To</th><th>Duration</th><th>Rating</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>#CDV-0200</td><td>Mark Bato</td><td>Aling Nena's</td><td>Purok 3, Brgy. Pilipog</td><td>13 min</td><td><span class="star">★★★★★</span></td><td><span class="status-pill s-delivered">Delivered</span></td></tr>
+          <tr><td>#CDV-0198</td><td>Dong Padilla</td><td>Bayside Bites</td><td>Purok 5, Brgy. Dapitan</td><td>18 min</td><td><span class="star">★★★★★</span></td><td><span class="status-pill s-delivered">Delivered</span></td></tr>
+          <tr><td>#CDV-0201</td><td>Kuya Renz</td><td>Mang Boy's Grill</td><td>Brgy. Gabi</td><td>—</td><td>—</td><td><span class="status-pill s-transit">On the Way</span></td></tr>
+          <tr><td>#CDV-0195</td><td>Joy Mercado</td><td>Cordova Kusina</td><td>Purok 1, Brgy. Buagsong</td><td>11 min</td><td><span class="star">★★★★★</span></td><td><span class="status-pill s-delivered">Delivered</span></td></tr>
+          <tr><td>#CDV-0194</td><td>Kuya Renz</td><td>Aling Nena's</td><td>Brgy. Catarman</td><td>15 min</td><td><span class="star">★★★★☆</span></td><td><span class="status-pill s-delivered">Delivered</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

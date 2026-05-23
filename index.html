@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2d42;
+    --navy-card: #162235;
+    --orange: #f46b1b;
+    --orange-light: #ff8c42;
+    --green: #2ecc71;
+    --text-main: #f5f0e8;
+    --text-muted: #8fa5bb;
+    --border: rgba(255,255,255,0.08);
+    --card-bg: #162235;
+    --pill-bg: rgba(244,107,27,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text-main);
+    display: flex;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+  /* LEFT PANEL — decorative */
+  .left-panel {
+    width: 52%;
+    background: var(--navy-mid);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Decorative blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+  }
+  .blob-1 { width: 420px; height: 420px; background: var(--orange); top: -120px; right: -100px; }
+  .blob-2 { width: 300px; height: 300px; background: var(--green); bottom: -80px; left: -60px; }
+  .blob-3 { width: 200px; height: 200px; background: var(--orange-light); top: 45%; left: 30%; }
+
+  /* Dot grid pattern */
+  .dot-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .left-top { position: relative; z-index: 2; }
+  .brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; }
+  .brand span { color: var(--orange); }
+  .brand-tag { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
+
+  .left-center { position: relative; z-index: 2; }
+  .left-headline {
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+    line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 1.25rem;
+  }
+  .left-headline span { color: var(--orange); }
+  .left-sub { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; max-width: 380px; font-weight: 300; }
+
+  /* Mini stats */
+  .left-stats { display: flex; gap: 2rem; position: relative; z-index: 2; }
+  .ls-item .ls-val {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+  }
+  .ls-item .ls-val span { color: var(--orange); }
+  .ls-item .ls-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+  /* Floating card preview */
+  .preview-card {
+    position: absolute; right: 3rem; top: 50%; transform: translateY(-50%);
+    background: rgba(22,34,53,0.9); border: 1px solid var(--border);
+    border-radius: 20px; padding: 1.25rem; width: 210px;
+    backdrop-filter: blur(10px); z-index: 3;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .pc-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .pc-val { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+  .pc-trend { font-size: 0.72rem; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 0.25rem; }
+  .pc-divider { border: none; border-top: 1px solid var(--border); margin: 0.875rem 0; }
+  .pc-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.78rem; }
+  .pc-row:last-child { margin-bottom: 0; }
+  .pc-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 0.4rem; }
+  .pc-name { display: flex; align-items: center; color: var(--text-muted); }
+  .pc-amount { font-weight: 600; }
+
+  /* RIGHT PANEL — login form */
+  .right-panel {
+    width: 48%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+  }
+  .login-box { width: 100%; max-width: 400px; }
+
+  .login-header { margin-bottom: 2.5rem; }
+  .login-back {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; color: var(--text-muted); text-decoration: none; margin-bottom: 2rem;
+    background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: color 0.2s;
+  }
+  .login-back:hover { color: var(--text-main); }
+  .login-eyebrow {
+    font-size: 0.72rem; font-weight: 700; color: var(--orange);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.625rem;
+  }
+  .login-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+  .login-sub { color: var(--text-muted); font-size: 0.875rem; }
+
+  /* FORM */
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label {
+    display: block; font-size: 0.8rem; font-weight: 600;
+    margin-bottom: 0.5rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .input-wrap { position: relative; }
+  .input-icon {
+    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+    font-size: 1rem; pointer-events: none;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    color: var(--text-main);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus {
+    border-color: rgba(244,107,27,0.5);
+    box-shadow: 0 0 0 3px rgba(244,107,27,0.1);
+  }
+  .toggle-pass {
+    position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--text-muted);
+  }
+
+  .form-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+  .checkbox-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; }
+  .checkbox-label input { accent-color: var(--orange); width: 15px; height: 15px; }
+  .forgot-link { font-size: 0.82rem; color: var(--orange); text-decoration: none; font-weight: 500; }
+
+  .login-btn {
+    width: 100%; background: var(--orange); color: white; border: none;
+    padding: 1rem; border-radius: 14px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s;
+    letter-spacing: 0.02em; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .login-btn:hover { background: var(--orange-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(244,107,27,0.3); }
+  .login-btn:active { transform: translateY(0); }
+
+  .divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.78rem; }
+  .divider::before, .divider::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+
+  .customer-link-btn {
+    width: 100%; background: transparent; color: var(--text-muted);
+    border: 1px solid var(--border); padding: 0.875rem; border-radius: 14px;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.875rem;
+    cursor: pointer; transition: all 0.2s; text-align: center; text-decoration: none; display: block;
+  }
+  .customer-link-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text-main); }
+
+  /* Error state */
+  .error-banner {
+    background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.25);
+    border-radius: 12px; padding: 0.75rem 1rem;
+    font-size: 0.82rem; color: #e74c3c;
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 1.25rem; display: none;
+  }
+  .error-banner.show { display: flex; }
+
+  /* Success overlay */
+  .success-overlay {
+    position: fixed; inset: 0; background: rgba(13,27,42,0.95);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.4s;
+    flex-direction: column; gap: 1rem;
+  }
+  .success-overlay.show { opacity: 1; pointer-events: all; }
+  .success-icon {
+    width: 72px; height: 72px; background: rgba(46,204,113,0.15);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; border: 2px solid rgba(46,204,113,0.4);
+  }
+  .success-text { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; }
+  .success-sub { color: var(--text-muted); font-size: 0.875rem; }
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="dot-grid"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="left-top">
+    <div class="brand">Cordova <span>Eats</span></div>
+    <div class="brand-tag">Admin Control Panel</div>
+  </div>
+
+  <div class="left-center">
+    <h1 class="left-headline">Manage your<br>local <span>delivery</span><br>network.</h1>
+    <p class="left-sub">Full visibility over orders, riders, restaurants, and revenue — all in one place built for Cordova.</p>
+  </div>
+
+  <div class="left-stats">
+    <div class="ls-item"><div class="ls-val">148<span>+</span></div><div class="ls-label">Orders today</div></div>
+    <div class="ls-item"><div class="ls-val">11</div><div class="ls-label">Active riders</div></div>
+    <div class="ls-item"><div class="ls-val">₱24k</div><div class="ls-label">Revenue today</div></div>
+  </div>
+
+  <!-- Floating preview card -->
+  <div class="preview-card">
+    <div class="pc-label">Today's Revenue</div>
+    <div class="pc-val">₱24,360</div>
+    <div class="pc-trend">↑ 12% vs yesterday</div>
+    <hr class="pc-divider">
+    <div class="pc-row"><span class="pc-name"><span class="pc-dot" style="background:var(--orange);"></span>Mang Boy's</span><span class="pc-amount">₱8,240</span></div>
+    <div class="pc-row"><span class="pc-name"><span class="pc-dot" style="background:var(--green);"></span>Aling Nena's</span><span class="pc-amount">₱5,920</span></div>
+    <div class="pc-row"><span class="pc-name"><span class="pc-dot" style="background:#3498db;"></span>Cordova Kusina</span><span class="pc-amount">₱4,510</span></div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="login-box">
+
+    <button class="login-back" onclick="window.location='01_home.html'">← Back to customer site</button>
+
+    <div class="login-header">
+      <div class="login-eyebrow">Admin Portal</div>
+      <h2 class="login-title">Welcome back 👋</h2>
+      <p class="login-sub">Sign in to access the Cordova Eats admin dashboard.</p>
+    </div>
+
+    <div class="error-banner" id="errorBanner">
+      ⚠️ <span>Invalid credentials. Try admin / admin123</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input type="text" class="form-input" id="usernameInput" placeholder="Enter your username" value="">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input type="password" class="form-input" id="passwordInput" placeholder="Enter your password" value="">
+        <button class="toggle-pass" id="togglePass" onclick="togglePassword()">👁</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="checkbox-label">
+        <input type="checkbox" checked> Remember me
+      </label>
+      <a href="#" class="forgot-link">Forgot password?</a>
+    </div>
+
+    <button class="login-btn" onclick="window.location.href='05_admin_dashboard.html'">
+  Sign In to Dashboard →
+</button>
+
+    <div class="divider">or</div>
+
+    <a href="01_home.html" class="customer-link-btn">🛍 Go to Customer App</a>
+
+    <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:1.5rem;">
+      Demo credentials: <strong style="color:var(--orange);">admin</strong> / <strong style="color:var(--orange);">admin123</strong>
+    </p>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✅</div>
+  <div class="success-text">Login Successful!</div>
+  <div class="success-sub">Redirecting to dashboard...</div>
+</div>
+
+<script>
+function togglePassword() {
+  const input = document.getElementById('passwordInput');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function handleLogin() {
+  const user = document.getElementById('usernameInput').value.trim();
+  const pass = document.getElementById('passwordInput').value.trim();
+  const errorBanner = document.getElementById('errorBanner');
+
+  if (user === 'admin' && pass === 'admin123') {
+    errorBanner.classList.remove('show');
+    document.getElementById('successOverlay').classList.add('show');
+    setTimeout(() => { window.location = '05_admin_dashboard.html'; }, 1800);
+  } else {
+    errorBanner.classList.add('show');
+    document.querySelector('.form-input').style.borderColor = 'rgba(231,76,60,0.5)';
+  }
+}
+
+// Allow Enter key
+document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+</script>
+</body>
+</html>

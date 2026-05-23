@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cordova Eats — Admin Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a; --navy-mid: #1a2d42; --navy-card: #162235;
+    --orange: #f46b1b; --orange-light: #ff8c42;
+    --green: #2ecc71; --red: #e74c3c; --yellow: #f1c40f;
+    --text-main: #f5f0e8; --text-muted: #8fa5bb;
+    --border: rgba(255,255,255,0.08); --card-bg: #162235;
+    --pill-bg: rgba(244,107,27,0.12); --sidebar-w: 240px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--text-main); min-height:100vh; display:flex; }
+  h1,h2,h3,h4 { font-family:'Syne',sans-serif; }
+
+  .sidebar { width:var(--sidebar-w); background:var(--navy-card); border-right:1px solid var(--border); min-height:100vh; display:flex; flex-direction:column; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; z-index:50; }
+  .sidebar-logo { padding:1.5rem 1.5rem 1.25rem; border-bottom:1px solid var(--border); }
+  .sidebar-logo .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; }
+  .sidebar-logo .logo span { color:var(--orange); }
+  .sidebar-logo .admin-tag { font-size:0.68rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-top:0.2rem; }
+  .sidebar-nav { flex:1; padding:1.25rem 0.75rem; display:flex; flex-direction:column; gap:0.25rem; }
+  .nav-section-label { font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; padding:0.75rem 0.75rem 0.4rem; }
+  .nav-item { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.875rem; border-radius:12px; color:var(--text-muted); font-size:0.875rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.18s; }
+  .nav-item:hover { background:rgba(255,255,255,0.05); color:var(--text-main); }
+  .nav-item.active { background:var(--pill-bg); color:var(--orange); }
+  .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+  .nav-item .badge { margin-left:auto; background:var(--orange); color:white; font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:8px; min-width:20px; text-align:center; }
+  .sidebar-footer { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; gap:0.75rem; }
+  .admin-avatar { width:34px; height:34px; background:var(--pill-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; border:1px solid rgba(244,107,27,0.3); }
+  .admin-name { font-size:0.82rem; font-weight:600; }
+  .admin-role { font-size:0.7rem; color:var(--text-muted); }
+
+  .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; min-height:100vh; }
+  .topbar { background:rgba(13,27,42,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 2rem; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+  .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+  .notif-btn { background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:0.4rem 0.6rem; cursor:pointer; font-size:1rem; position:relative; }
+  .notif-dot { position:absolute; top:4px; right:4px; width:7px; height:7px; background:var(--orange); border-radius:50%; }
+
+  .content { padding:2rem; flex:1; }
+  .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.5rem; }
+  .page-header h2 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  .page-header p { color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem; }
+
+  /* FILTER ROW */
+  .filter-row { display:flex; gap:0.75rem; margin-bottom:1.5rem; align-items:center; flex-wrap:wrap; }
+  .filter-tab { padding:0.45rem 1rem; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:0.825rem; font-weight:500; cursor:pointer; transition:all 0.18s; }
+  .filter-tab:hover { border-color:rgba(244,107,27,0.3); color:var(--text-main); }
+  .filter-tab.active { background:var(--orange); border-color:var(--orange); color:white; }
+  .search-box { margin-left:auto; display:flex; align-items:center; gap:0.5rem; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:0.5rem 0.875rem; }
+  .search-box input { background:none; border:none; color:var(--text-main); font-family:'DM Sans',sans-serif; font-size:0.875rem; outline:none; width:180px; }
+  .search-box input::placeholder { color:var(--text-muted); }
+
+  /* STATS ROW */
+  .order-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+  .o-stat { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:1.25rem; display:flex; align-items:center; gap:1rem; }
+  .o-stat .o-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+  .o-stat .o-val { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; }
+  .o-stat .o-label { font-size:0.75rem; color:var(--text-muted); }
+
+  /* TABLE */
+  .card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .card-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:0.72rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; padding:0.75rem 1.25rem; text-align:left; border-bottom:1px solid var(--border); background:rgba(255,255,255,0.02); }
+  td { padding:1rem 1.25rem; font-size:0.875rem; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .order-id { font-weight:600; font-size:0.8rem; font-family:'Syne',sans-serif; }
+  .status-pill { font-size:0.72rem; font-weight:600; padding:0.25rem 0.625rem; border-radius:8px; white-space:nowrap; display:inline-block; }
+  .s-delivered { background:rgba(46,204,113,0.15); color:var(--green); }
+  .s-transit { background:var(--pill-bg); color:var(--orange); }
+  .s-preparing { background:rgba(241,196,15,0.15); color:var(--yellow); }
+  .s-cancelled { background:rgba(231,76,60,0.12); color:var(--red); }
+  .s-pending { background:rgba(139,165,187,0.15); color:var(--text-muted); }
+  .action-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; padding:0.3rem 0.625rem; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; margin-right:0.375rem; transition:all 0.15s; }
+  .action-btn:hover { border-color:var(--orange); color:var(--orange); }
+  .action-btn.danger:hover { border-color:var(--red); color:var(--red); }
+  .rider-chip { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:var(--text-muted); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Cordova <span>Eats</span></div>
+    <div class="admin-tag">Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="05_admin_dashboard.html"><span class="icon">📊</span> Dashboard</a>
+    <a class="nav-item active" href="06_admin_orders.html"><span class="icon">📋</span> Orders <span class="badge">12</span></a>
+    <a class="nav-item" href="07_admin_riders.html"><span class="icon">🛵</span> Riders</a>
+    <a class="nav-item" href="08_admin_restaurants.html"><span class="icon">🏪</span> Restaurants</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="#"><span class="icon">👥</span> Customers</a>
+    <a class="nav-item" href="09_admin_revenue.html"><span class="icon">💰</span> Revenue</a>
+    <a class="nav-item" href="10_admin_announcements.html"><span class="icon">📣</span> Announcements</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span> Settings</a>
+    <a class="nav-item" href="01_home.html"><span class="icon">↗️</span> Customer View</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-avatar">👨‍💼</div>
+    <div><div class="admin-name">Admin Cordova</div><div class="admin-role">Super Admin</div></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Orders Management</div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="color:var(--text-muted);font-size:0.8rem;">May 20, 2026</span>
+      <div class="notif-btn">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div><h2>All Orders</h2><p>Monitor and manage all customer orders in real time.</p></div>
+      <button style="background:var(--orange);color:white;border:none;padding:0.625rem 1.25rem;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.875rem;cursor:pointer;">⬇ Export CSV</button>
+    </div>
+
+    <div class="order-stats">
+      <div class="o-stat"><div class="o-icon" style="background:var(--pill-bg);">📦</div><div><div class="o-val">148</div><div class="o-label">Total Today</div></div></div>
+      <div class="o-stat"><div class="o-icon" style="background:rgba(241,196,15,0.12);">🍳</div><div><div class="o-val">12</div><div class="o-label">Preparing</div></div></div>
+      <div class="o-stat"><div class="o-icon" style="background:rgba(244,107,27,0.12);">🛵</div><div><div class="o-val">9</div><div class="o-label">In Transit</div></div></div>
+      <div class="o-stat"><div class="o-icon" style="background:rgba(231,76,60,0.12);">❌</div><div><div class="o-val">5</div><div class="o-label">Cancelled</div></div></div>
+    </div>
+
+    <div class="filter-row">
+      <button class="filter-tab active" onclick="filterOrders(this,'all')">All Orders</button>
+      <button class="filter-tab" onclick="filterOrders(this,'pending')">Pending</button>
+      <button class="filter-tab" onclick="filterOrders(this,'preparing')">Preparing</button>
+      <button class="filter-tab" onclick="filterOrders(this,'transit')">On the Way</button>
+      <button class="filter-tab" onclick="filterOrders(this,'delivered')">Delivered</button>
+      <button class="filter-tab" onclick="filterOrders(this,'cancelled')">Cancelled</button>
+      <div class="search-box">🔍 <input type="text" placeholder="Search order, customer..."></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Order List</div>
+        <span style="font-size:0.78rem;color:var(--text-muted);">Showing 148 orders</span>
+      </div>
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Restaurant</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Rider</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const orders = [
+  { id:'CDV-0201', customer:'Maria Santos', restaurant:"Mang Boy's Grill", items:'Chicken Inasal ×2', total:170, rider:'Kuya Renz', time:'2 min ago', status:'transit' },
+  { id:'CDV-0200', customer:'Juan dela Cruz', restaurant:"Aling Nena's", items:'Lomi Special ×3', total:210, rider:'Mark Bato', time:'8 min ago', status:'delivered' },
+  { id:'CDV-0199', customer:'Rose Vergara', restaurant:'Cordova Kusina', items:'Pinakbet Bowl ×2', total:130, rider:'—', time:'10 min ago', status:'preparing' },
+  { id:'CDV-0198', customer:'Ben Flores', restaurant:'Bayside Bites', items:'Sinugba ×3, Buko Juice ×2', total:365, rider:'Dong Padilla', time:'18 min ago', status:'delivered' },
+  { id:'CDV-0197', customer:'Ana Reyes', restaurant:'Merienda Corner', items:'Sago Gulaman ×2', total:70, rider:'—', time:'22 min ago', status:'cancelled' },
+  { id:'CDV-0196', customer:'Lito Mangubat', restaurant:"Mang Boy's Grill", items:'BBQ Stick ×5', total:150, rider:'—', time:'25 min ago', status:'pending' },
+  { id:'CDV-0195', customer:'Celia Torres', restaurant:'Cordova Kusina', items:'Adobo Rice ×2', total:144, rider:'Nico Abella', time:'31 min ago', status:'delivered' },
+  { id:'CDV-0194', customer:'Danny Obra', restaurant:"Aling Nena's", items:'Pork Sinigang ×1', total:80, rider:'Kuya Renz', time:'38 min ago', status:'delivered' },
+];
+
+const statusMap = { delivered:'s-delivered', transit:'s-transit', preparing:'s-preparing', cancelled:'s-cancelled', pending:'s-pending' };
+const statusLabel = { delivered:'Delivered', transit:'On the Way', preparing:'Preparing', cancelled:'Cancelled', pending:'Pending' };
+
+function renderOrders(filter) {
+  const list = filter === 'all' ? orders : orders.filter(o=>o.status===filter);
+  document.getElementById('ordersBody').innerHTML = list.map(o => `
+    <tr>
+      <td><span class="order-id">#${o.id}</span></td>
+      <td>${o.customer}</td>
+      <td>${o.restaurant}</td>
+      <td style="color:var(--text-muted);font-size:0.8rem;">${o.items}</td>
+      <td style="font-weight:700;color:var(--orange);">₱${o.total}</td>
+      <td><span class="rider-chip">🛵 ${o.rider}</span></td>
+      <td style="color:var(--text-muted);font-size:0.8rem;">${o.time}</td>
+      <td><span class="status-pill ${statusMap[o.status]}">${statusLabel[o.status]}</span></td>
+      <td>
+        <button class="action-btn">View</button>
+        <button class="action-btn danger">Cancel</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterOrders(btn, filter) {
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrders(filter);
+}
+
+renderOrders('all');
+</script>
+</body>
+</html>
